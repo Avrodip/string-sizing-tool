@@ -1,0 +1,41 @@
+{
+    "development": {
+        "username": "root",
+        "password": "admin",
+        "database": "string-sizing-tool",
+        "host": "127.0.0.1",
+        "dialect": "mysql",
+        "pool": {
+            "max": 5,
+            "min": 0,
+            "acquire": 3600000,
+            "idle": 3600000
+        }
+    },
+    "test": {
+        "username": "root",
+        "password": null,
+        "database": "pmt-master-qa",
+        "host": "127.0.0.1",
+        "dialect": "mysql",
+        "pool": {
+            "max": 5,
+            "min": 0,
+            "acquire": 3600000,
+            "idle": 3600000
+        }
+    },
+    "production": {
+        "username": "root",
+        "password": null,
+        "database": "pmt-master-prod",
+        "host": "127.0.0.1",
+        "dialect": "mysql",
+        "pool": {
+            "max": 5,
+            "min": 0,
+            "acquire": 3600000,
+            "idle": 3600000
+        }
+    }
+}

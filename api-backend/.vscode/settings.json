@@ -1,0 +1,8 @@
+{
+    "editor.tabSize": 4,
+    "editor.defaultFormatter": "EditorConfig.EditorConfig",
+    "editor.insertSpaces": false ,
+    "editor.indentSize": "tabSize",
+    "editor.autoIndent": "full",
+    "editor.wordWrap": "on"
+  }
