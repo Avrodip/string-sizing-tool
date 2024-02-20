@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { useFormik } from 'formik';
 
-const ModuleParametersTable = () => {
+const ModuleParametersTable = ({ onFormikChange }) => {
   const formik = useFormik({
     initialValues: {
       moduleParamDet: {
@@ -39,25 +39,25 @@ const ModuleParametersTable = () => {
       },
       weatherDetails: {
         recordLowAmbientTemperature: {
-            Tcell: '',
+            Tcell: '0',
             Voc: '',
             Isc: '',
             Pmpp: ''
           },
           stcCellTemperature: {
-            Tcell: '',
+            Tcell: '10',
             Voc: '',
             Isc: '',
             Pmpp: ''
           },
           mediumCellTemperature: {
-            Tcell: '',
+            Tcell: '55',
             Voc: '',
             Isc: '',
             Pmpp: ''
           },
           maximumCellTemperature: {
-            Tcell: '',
+            Tcell: '70',
             Voc: '',
             Isc: '',
             Pmpp: ''
@@ -96,15 +96,14 @@ const ModuleParametersTable = () => {
 
   const handleFormChange = (event) => {
     formik.setFieldValue(event.target.name, event.target.value);
-    
   };
-  console.log(formik.values);
+  onFormikChange(formik.values);
   const generateRows = (numberOfRows) => {
     const rows = [];
     for (let i = 0; i < numberOfRows; i++) {
       rows.push(
         <TableRow key={i}>
-          <TableCell>Inverter {i + 1}</TableCell>
+          <TableCell>Inv- {i + 1}</TableCell>
           <TableCell align="center">
             <TextField
               variant="outlined"

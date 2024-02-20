@@ -10,17 +10,23 @@ import MainCard from 'components/MainCard';
 import AnimateButton from 'components/@extended/AnimateButton';
 
 // project imports
-import ParameterDetailForm from './sample-page';
-
+import ModuleParameterTable from './sample-page';
+import StringTable from '../string-sizing-page/string-table'
 // step options
 const steps = ['Parameter Details', 'String Sizing Analysis', 'Design'];
 
 function getStepContent(step) {
+    const [formikValues, setFormikValues] = useState(null);
+    const handleFormikChange = (values) => {
+        setFormikValues(values);
+      };
   switch (step) {
     case 0:
-      return <ParameterDetailForm />;
-    // case 1:
-    //   return <PaymentForm />;
+      return <ModuleParameterTable onFormikChange={handleFormikChange} />;
+    case 1:
+      return <StringTable formikValues={formikValues} />
+    
+    //   ;
     // case 2:
     //   return <Review />;
     default:
@@ -33,6 +39,7 @@ function getStepContent(step) {
 const BasicWizard = () => {
   const [activeStep, setActiveStep] = useState(0);
 
+  
   const handleNext = () => {
     setActiveStep(activeStep + 1);
   };
