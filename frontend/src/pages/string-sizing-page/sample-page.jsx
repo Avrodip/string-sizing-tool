@@ -1,4 +1,4 @@
-import React from 'react';
+import {React,useEffect} from 'react';
 import {
   Grid,
   Typography,
@@ -26,7 +26,7 @@ const ModuleParametersTable = () => {
         ratedPower: '',
         tempCoefficientIsc: '',
         tempCoefficientVoc: '',
-        tempCoefficient: ''
+        tempCoefficientPmpp: ''
       },
       inverterParamDet: {
         inverter: '',
@@ -38,13 +38,35 @@ const ModuleParametersTable = () => {
         dcMpptRangeUpperLimit: ''
       },
       weatherDetails: {
-        recordLowAmbientTemperature: '',
-        stcCellTemperature: '',
-        mediumCellTemperature: '',
-        maximumCellTemperature: ''
+        recordLowAmbientTemperature: {
+            Tcell: '',
+            Voc: '',
+            Isc: '',
+            Pmpp: ''
+          },
+          stcCellTemperature: {
+            Tcell: '',
+            Voc: '',
+            Isc: '',
+            Pmpp: ''
+          },
+          mediumCellTemperature: {
+            Tcell: '',
+            Voc: '',
+            Isc: '',
+            Pmpp: ''
+          },
+          maximumCellTemperature: {
+            Tcell: '',
+            Voc: '',
+            Isc: '',
+            Pmpp: ''
+          }
       }
     },
+
     onSubmit: async (values) => {
+      console.log('Onsubmit is calling');
       try {
         const response = await fetch('http://localhost:4000/api/master/updateParameter', {
           method: 'POST',
@@ -74,8 +96,9 @@ const ModuleParametersTable = () => {
 
   const handleFormChange = (event) => {
     formik.setFieldValue(event.target.name, event.target.value);
-    console.log(formik.values);
+    
   };
+  console.log(formik.values);
   const generateRows = (numberOfRows) => {
     const rows = [];
     for (let i = 0; i < numberOfRows; i++) {
@@ -90,10 +113,7 @@ const ModuleParametersTable = () => {
               type="number"
               value={formik.values.inverterParamDet.numberOfInverters}
               onChange={(event) => {
-                formik.setFieldValue(
-                  `inverterParamDet.numberOfInverters`,
-                  event.target.value
-                );
+                formik.setFieldValue(`inverterParamDet.numberOfInverters`, event.target.value);
               }}
             />
           </TableCell>
@@ -115,11 +135,73 @@ const ModuleParametersTable = () => {
     }
     return rows;
   };
+
+  useEffect(() => {
+    // Calculate and set the value for Voc based on ratedPower when moduleParamDet changes
+    formik.setFieldValue(
+      'weatherDetails.recordLowAmbientTemperature.Voc',
+      (formik.values.moduleParamDet.openCircuitVoltage * (1 + (formik.values.moduleParamDet.tempCoefficientVoc / 100) * (formik.values.weatherDetails.recordLowAmbientTemperature.Tcell - 25))).toFixed(0)
+    );
+    formik.setFieldValue(
+        'weatherDetails.stcCellTemperature.Voc',
+        (formik.values.moduleParamDet.openCircuitVoltage * (1 + (formik.values.moduleParamDet.tempCoefficientVoc / 100) * (formik.values.weatherDetails.stcCellTemperature.Tcell - 25))).toFixed(1)
+      );
+
+      formik.setFieldValue(
+        'weatherDetails.mediumCellTemperature.Voc',
+        (formik.values.moduleParamDet.openCircuitVoltage * (1 + (formik.values.moduleParamDet.tempCoefficientVoc / 100) * (formik.values.weatherDetails.mediumCellTemperature.Tcell - 25))).toFixed(1)
+      );
+      formik.setFieldValue(
+        'weatherDetails.maximumCellTemperature.Voc',
+        (formik.values.moduleParamDet.openCircuitVoltage * (1 + (formik.values.moduleParamDet.tempCoefficientVoc / 100) * (formik.values.weatherDetails.maximumCellTemperature.Tcell - 25))).toFixed(1)
+      );
+
+
+     //ISC
+     formik.setFieldValue(
+        'weatherDetails.recordLowAmbientTemperature.Isc',
+        (formik.values.moduleParamDet.shortCircuitCurrent * (1 + (formik.values.moduleParamDet.tempCoefficientIsc / 100) * (formik.values.weatherDetails.recordLowAmbientTemperature.Tcell - 25))).toFixed(0)
+      );
+      formik.setFieldValue(
+        'weatherDetails.stcCellTemperature.Isc',
+        (formik.values.moduleParamDet.shortCircuitCurrent * (1 + (formik.values.moduleParamDet.tempCoefficientIsc / 100) * (formik.values.weatherDetails.stcCellTemperature.Tcell - 25))).toFixed(0)
+      );
+      formik.setFieldValue(
+        'weatherDetails.mediumCellTemperature.Isc',
+        (formik.values.moduleParamDet.shortCircuitCurrent * (1 + (formik.values.moduleParamDet.tempCoefficientIsc / 100) * (formik.values.weatherDetails.mediumCellTemperature.Tcell - 25))).toFixed(0)
+      );
+      formik.setFieldValue(
+        'weatherDetails.maximumCellTemperature.Isc',
+        (formik.values.moduleParamDet.shortCircuitCurrent * (1 + (formik.values.moduleParamDet.tempCoefficientIsc / 100) * (formik.values.weatherDetails.maximumCellTemperature.Tcell - 25))).toFixed(0)
+      );
+
+      //Pmpp
+      formik.setFieldValue(
+        'weatherDetails.recordLowAmbientTemperature.Pmpp',
+        (formik.values.moduleParamDet.ratedPower * (1 + (formik.values.moduleParamDet.tempCoefficientPmpp / 100) * (formik.values.weatherDetails.recordLowAmbientTemperature.Tcell - 25))).toFixed(0)
+      );
+      formik.setFieldValue(
+        'weatherDetails.stcCellTemperature.Pmpp',
+        (formik.values.moduleParamDet.ratedPower * (1 + (formik.values.moduleParamDet.tempCoefficientPmpp / 100) * (formik.values.weatherDetails.stcCellTemperature.Tcell - 25))).toFixed(0)
+      );
+      formik.setFieldValue(
+        'weatherDetails.mediumCellTemperature.Pmpp',
+        (formik.values.moduleParamDet.ratedPower * (1 + (formik.values.moduleParamDet.tempCoefficientPmpp / 100) * (formik.values.weatherDetails.mediumCellTemperature.Tcell - 25))).toFixed(0)
+      );
+      formik.setFieldValue(
+        'weatherDetails.maximumCellTemperature.Pmpp',
+        (formik.values.moduleParamDet.ratedPower * (1 + (formik.values.moduleParamDet.tempCoefficientPmpp / 100) * (formik.values.weatherDetails.maximumCellTemperature.Tcell - 25))).toFixed(0)
+      );
+  }, [formik.values.moduleParamDet,formik.values.weatherDetails]); // Add moduleParamDet as dependency
   return (
     <Grid container spacing={2}>
       {/* Module Parameters Form */}
-      <Grid item xs={12} md={4}>
-        <Typography variant="h5" gutterBottom sx={{ mb: 0, backgroundColor: '#343a40', color: 'white', padding: '6px', textAlign: 'center' }}>
+      <Grid item xs={12} md={3}>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ mb: 0, backgroundColor: '#343a40', color: 'white', padding: '6px', textAlign: 'center' }}
+        >
           Module Parameters
         </Typography>
         <form onSubmit={formik.handleSubmit}>
@@ -148,7 +230,7 @@ const ModuleParametersTable = () => {
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">A</InputAdornment>,
+                endAdornment: <InputAdornment position="end">A</InputAdornment>
               }}
             />
           </Box>
@@ -164,7 +246,7 @@ const ModuleParametersTable = () => {
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">V</InputAdornment>,
+                endAdornment: <InputAdornment position="end">V</InputAdornment>
               }}
             />
           </Box>
@@ -180,7 +262,7 @@ const ModuleParametersTable = () => {
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">W</InputAdornment>,
+                endAdornment: <InputAdornment position="end">W</InputAdornment>
               }}
             />
           </Box>
@@ -196,7 +278,7 @@ const ModuleParametersTable = () => {
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">%/C</InputAdornment>,
+                endAdornment: <InputAdornment position="end">%/C</InputAdornment>
               }}
             />
           </Box>
@@ -212,23 +294,23 @@ const ModuleParametersTable = () => {
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">%/C</InputAdornment>,
+                endAdornment: <InputAdornment position="end">%/C</InputAdornment>
               }}
             />
           </Box>
           <Box sx={{ p: 2 }}>
             <TextField
               required
-              id="moduleParamDet.tempCoefficient"
-              name="moduleParamDet.tempCoefficient"
+              id="moduleParamDet.tempCoefficientPmpp"
+              name="moduleParamDet.tempCoefficientPmpp"
               label="Temp coefficient Pmpp"
               variant="outlined"
-              value={formik.values.moduleParamDet.tempCoefficient}
+              value={formik.values.moduleParamDet.tempCoefficientPmpp}
               onChange={handleFormChange}
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">%/C</InputAdornment>,
+                endAdornment: <InputAdornment position="end">%/C</InputAdornment>
               }}
             />
           </Box>
@@ -237,11 +319,15 @@ const ModuleParametersTable = () => {
 
       {/* Inverter Parameters Form */}
       <Grid item xs={12} md={4}>
-        <Typography variant="h5" gutterBottom sx={{ mb: 0, backgroundColor: '#343a40', color: 'white', padding: '6px', textAlign: 'center' }}>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ mb: 0, backgroundColor: '#343a40', color: 'white', padding: '6px', textAlign: 'center' }}
+        >
           Inverter Parameters
         </Typography>
         <form onSubmit={formik.handleSubmit}>
-        <Box sx={{ p: 2 }}>
+          <Box sx={{ p: 2 }}>
             <TextField
               required
               id="inverterParamDet.inverter"
@@ -266,7 +352,7 @@ const ModuleParametersTable = () => {
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">kW</InputAdornment>,
+                endAdornment: <InputAdornment position="end">kW</InputAdornment>
               }}
             />
           </Box>
@@ -282,7 +368,7 @@ const ModuleParametersTable = () => {
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">Nos</InputAdornment>,
+                endAdornment: <InputAdornment position="end">Nos</InputAdornment>
               }}
             />
           </Box>
@@ -298,7 +384,7 @@ const ModuleParametersTable = () => {
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">V</InputAdornment>,
+                endAdornment: <InputAdornment position="end">V</InputAdornment>
               }}
             />
           </Box>
@@ -314,7 +400,7 @@ const ModuleParametersTable = () => {
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">V</InputAdornment>,
+                endAdornment: <InputAdornment position="end">V</InputAdornment>
               }}
             />
           </Box>
@@ -330,7 +416,7 @@ const ModuleParametersTable = () => {
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">V</InputAdornment>,
+                endAdornment: <InputAdornment position="end">V</InputAdornment>
               }}
             />
           </Box>
@@ -346,79 +432,264 @@ const ModuleParametersTable = () => {
               onBlur={formik.handleBlur}
               fullWidth
               InputProps={{
-                endAdornment: <InputAdornment position="end">V</InputAdornment>,
+                endAdornment: <InputAdornment position="end">V</InputAdornment>
               }}
             />
+          </Box>
+          <Box sx={{ p: 2 }}>
+            <Button variant="contained" type="submit">
+              Submit
+            </Button>
           </Box>
         </form>
       </Grid>
 
       {/* Weather Details Form */}
-      <Grid item xs={12} md={4}>
-        <Typography variant="h5" gutterBottom sx={{ mb: 0, backgroundColor: '#343a40', color: 'white', padding: '6px', textAlign: 'center' }}>
+      <Grid item xs={12} md={5}>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ mb: 0, backgroundColor: '#343a40', color: 'white', padding: '6px', textAlign: 'center' }}
+        >
           Weather Details
         </Typography>
-        <form onSubmit={formik.handleSubmit}>
-          <Box sx={{ p: 2 }}>
-            <TextField
-              required
-              id="weatherDetails.recordLowAmbientTemperature"
-              name="weatherDetails.recordLowAmbientTemperature"
-              label="Record low ambient temperature"
-              variant="outlined"
-              value={formik.values.weatherDetails.recordLowAmbientTemperature}
-              onChange={handleFormChange}
-              onBlur={formik.handleBlur}
-              fullWidth
-            />
-          </Box>
-          <Box sx={{ p: 2 }}>
-            <TextField
-              required
-              id="weatherDetails.stcCellTemperature"
-              name="weatherDetails.stcCellTemperature"
-              label="STC cell temperature"
-              variant="outlined"
-              value={formik.values.weatherDetails.stcCellTemperature}
-              onChange={handleFormChange}
-              onBlur={formik.handleBlur}
-              fullWidth
-            />
-          </Box>
-          <Box sx={{ p: 2 }}>
-            <TextField
-              required
-              id="weatherDetails.mediumCellTemperature"
-              name="weatherDetails.mediumCellTemperature"
-              label="Medium cell temperature"
-              variant="outlined"
-              value={formik.values.weatherDetails.mediumCellTemperature}
-              onChange={handleFormChange}
-              onBlur={formik.handleBlur}
-              fullWidth
-            />
-          </Box>
-          <Box sx={{ p: 2 }}>
-            <TextField
-              required
-              id="weatherDetails.maximumCellTemperature"
-              name="weatherDetails.maximumCellTemperature"
-              label="Maximum cell temperature"
-              variant="outlined"
-              value={formik.values.weatherDetails.maximumCellTemperature}
-              onChange={handleFormChange}
-              onBlur={formik.handleBlur}
-              fullWidth
-            />
-          </Box>
-          <Box sx={{ p: 2 }}>
-            <Button variant="contained" type="submit">Submit</Button>
-          </Box>
-        </form>
+        <TableContainer component={Paper} sx={{ marginTop: '10px' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Temperature Effects</TableCell>
+                <TableCell align="center">Tcell</TableCell>
+                <TableCell align="center">Voc</TableCell>
+                <TableCell align="center">Isc</TableCell>
+                <TableCell align="center">Pmpp</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                <TableCell>Record low ambient temperature</TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.recordLowAmbientTemperature.Tcell"
+                    name="weatherDetails.recordLowAmbientTemperature.Tcell"
+                    variant="outlined"
+                    value={formik.values.weatherDetails.recordLowAmbientTemperature.Tcell}
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.recordLowAmbientTemperature.Voc"
+                    name="weatherDetails.recordLowAmbientTemperature.Voc"
+                    variant="outlined"
+                    value={formik.values.weatherDetails.recordLowAmbientTemperature.Voc}
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.recordLowAmbientTemperature.Isc"
+                    name="weatherDetails.recordLowAmbientTemperature.Isc"
+                    variant="outlined"
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                    value={formik.values.weatherDetails.recordLowAmbientTemperature.Isc}
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.recordLowAmbientTemperature.Pmpp"
+                    name="weatherDetails.recordLowAmbientTemperature.Pmpp"
+                    variant="outlined"
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                    value={formik.values.weatherDetails.recordLowAmbientTemperature.Pmpp}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>STC cell temperature</TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.stcCellTemperature.Tcell"
+                    name="weatherDetails.stcCellTemperature.Tcell"
+                    variant="outlined"
+                    value={formik.values.weatherDetails.stcCellTemperature.Tcell}
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.stcCellTemperature.Voc"
+                    name="weatherDetails.stcCellTemperature.Voc"
+                    variant="outlined"
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                    value={formik.values.weatherDetails.stcCellTemperature.Voc}
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.stcCellTemperature.Isc"
+                    name="weatherDetails.stcCellTemperature.Isc"
+                    variant="outlined"
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                    value={formik.values.weatherDetails.stcCellTemperature.Isc}
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.stcCellTemperature.Pmpp"
+                    name="weatherDetails.stcCellTemperature.Pmpp"
+                    variant="outlined"
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                    value={formik.values.weatherDetails.stcCellTemperature.Pmpp}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Medium Cell temperature</TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.mediumCellTemperature.Tcell"
+                    name="weatherDetails.mediumCellTemperature.Tcell"
+                    variant="outlined"
+                    value={formik.values.weatherDetails.mediumCellTemperature.Tcell}
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.mediumCellTemperature.Voc"
+                    name="weatherDetails.mediumCellTemperature.Voc"
+                    variant="outlined"
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                    value={formik.values.weatherDetails.mediumCellTemperature.Voc}
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.mediumCellTemperature.Isc"
+                    name="weatherDetails.mediumCellTemperature.Isc"
+                    variant="outlined"
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                    value={formik.values.weatherDetails.mediumCellTemperature.Isc}
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.mediumCellTemperature.Pmpp"
+                    name="weatherDetails.mediumCellTemperature.Pmpp"
+                    variant="outlined"
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                    value={formik.values.weatherDetails.mediumCellTemperature.Pmpp}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Maximum Cell temperature</TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.maximumCellTemperature.Tcell"
+                    name="weatherDetails.maximumCellTemperature.Tcell"
+                    variant="outlined"
+                    value={formik.values.weatherDetails.maximumCellTemperature.Tcell}
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.maximumCellTemperature.Voc"
+                    name="weatherDetails.maximumCellTemperature.Voc"
+                    variant="outlined"
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                    value={formik.values.weatherDetails.maximumCellTemperature.Voc}
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.maximumCellTemperature.Isc"
+                    name="weatherDetails.maximumCellTemperature.Isc"
+                    variant="outlined"
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                    value={formik.values.weatherDetails.maximumCellTemperature.Isc}
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <TextField
+                    required
+                    id="weatherDetails.maximumCellTemperature.Pmpp"
+                    name="weatherDetails.maximumCellTemperature.Pmpp"
+                    variant="outlined"
+                    onChange={handleFormChange}
+                    onBlur={formik.handleBlur}
+                    fullWidth
+                    disabled={true}
+                    value={formik.values.weatherDetails.maximumCellTemperature.Pmpp}
+                  />
+                </TableCell>
+              </TableRow>
+              {/* Add similar rows for other temperature conditions */}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Grid>
 
-    {/* String and Module Details Table */}
-    <Grid item xs={12} md={8}>
+      {/* String and Module Details Table */}
+      <Grid item xs={12} md={8}>
         <Paper elevation={3} style={{ padding: '20px', border: '1px solid #ccc', alignContent: 'center' }}>
           <TableContainer>
             <Table size="small">
@@ -435,15 +706,12 @@ const ModuleParametersTable = () => {
                   <TableCell align="center">Capacity</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
-                {generateRows(formik.values.inverterParamDet.numberOfInverters)}
-              </TableBody>
+              <TableBody>{generateRows(formik.values.inverterParamDet.numberOfInverters)}</TableBody>
             </Table>
           </TableContainer>
         </Paper>
       </Grid>
     </Grid>
-    
   );
 };
 
