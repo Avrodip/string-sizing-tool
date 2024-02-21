@@ -30,6 +30,7 @@ const ModuleParametersTable = ({ onFormikChange }) => {
       },
       inverterParamDet: {
         inverter: '',
+        inverters:[],
         acNominalPower: '',
         numberOfInverters: '',
         dcStartVoltage: '',
