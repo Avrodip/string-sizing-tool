@@ -30,7 +30,9 @@ const ModuleParametersTable = ({ onFormikChange }) => {
       },
       inverterParamDet: {
         inverter: '',
-        inverters:[],
+        inverters: [
+            { numberOfStrings: '', numberOfModules: '' },
+          ],
         acNominalPower: '',
         numberOfInverters: '',
         dcStartVoltage: '',
@@ -80,7 +82,7 @@ const ModuleParametersTable = ({ onFormikChange }) => {
             moduleParamDet: values.moduleParamDet,
             inverterParamDet: values.inverterParamDet,
             weatherParamDet: values.weatherDetails,
-            stringSizingDet: null,
+            stringSizingDet: values.inverterParamDet.inverters,
             actionType: 1
           })
         });
@@ -98,10 +100,12 @@ const ModuleParametersTable = ({ onFormikChange }) => {
   const handleFormChange = (event) => {
     formik.setFieldValue(event.target.name, event.target.value);
   };
+  console.log(formik.values);
   onFormikChange(formik.values);
   const generateRows = (numberOfRows) => {
     const rows = [];
     for (let i = 0; i < numberOfRows; i++) {
+      const inverter = formik.values.inverterParamDet.inverters[i] || { numberOfStrings: '', numberOfModules: '' };
       rows.push(
         <TableRow key={i}>
           <TableCell>Inv- {i + 1}</TableCell>
@@ -110,10 +114,11 @@ const ModuleParametersTable = ({ onFormikChange }) => {
               variant="outlined"
               size="small"
               fullWidth
-              type="number"
-              value={formik.values.inverterParamDet.numberOfInverters}
+              value={inverter.numberOfStrings}
               onChange={(event) => {
-                formik.setFieldValue(`inverterParamDet.numberOfInverters`, event.target.value);
+                const newInverters = [...formik.values.inverterParamDet.inverters];
+                newInverters[i] = { ...newInverters[i], numberOfStrings: event.target.value };
+                formik.setFieldValue(`inverterParamDet.inverters`, newInverters);
               }}
             />
           </TableCell>
@@ -122,14 +127,17 @@ const ModuleParametersTable = ({ onFormikChange }) => {
               variant="outlined"
               size="small"
               fullWidth
-              type="number"
-              // Add onChange and value props to bind the TextField to formik values
-              onChange={handleFormChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.inverterParamDet.numberOfInverters}
+              value={inverter.numberOfModules}
+              onChange={(event) => {
+                const newInverters = [...formik.values.inverterParamDet.inverters];
+                newInverters[i] = { ...newInverters[i], numberOfModules: event.target.value };
+                formik.setFieldValue(`inverterParamDet.inverters`, newInverters);
+              }}
             />
           </TableCell>
-          <TableCell align="center">100 kW</TableCell>
+          <TableCell align="center">
+            100 kW
+          </TableCell>
         </TableRow>
       );
     }
@@ -318,7 +326,7 @@ const ModuleParametersTable = ({ onFormikChange }) => {
       </Grid>
 
       {/* Inverter Parameters Form */}
-      <Grid item xs={12} md={4}>
+      <Grid item xs={12} md={3}>
         <Typography
           variant="h5"
           gutterBottom
@@ -445,7 +453,7 @@ const ModuleParametersTable = ({ onFormikChange }) => {
       </Grid>
 
       {/* Weather Details Form */}
-      <Grid item xs={12} md={5}>
+      <Grid item xs={12} md={6}>
         <Typography
           variant="h5"
           gutterBottom
@@ -686,16 +694,16 @@ const ModuleParametersTable = ({ onFormikChange }) => {
             </TableBody>
           </Table>
         </TableContainer>
-      </Grid>
+      {/* </Grid> */}
 
       {/* String and Module Details Table */}
-      <Grid item xs={12} md={8}>
-        <Paper elevation={3} style={{ padding: '20px', border: '1px solid #ccc', alignContent: 'center' }}>
+      {/* <Grid item xs={12} md={6}> */}
+        <Paper elevation={3} style={{ padding: '20px', border: '1px solid #ccc', alignContent: 'center', marginTop:'8px' }}>
           <TableContainer>
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" colSpan={4}>
+                  <TableCell align="center" colSpan={4} sx={{backgroundColor:'#343A40', color:'white'}}>
                     String and Module Details
                   </TableCell>
                 </TableRow>
