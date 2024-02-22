@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Button, Step, Stepper, StepLabel, Stack, Typography, Grid } from '@mui/material';
 import MainCard from 'components/MainCard';
-import ModuleParameterTable from './sample-page';
+import ModuleParameterTable from './string-sizing-form';
 import StringTable from '../string-sizing-page/string-table';
 import LineDiagram from './line-diagram';
-
+import batteryImage from '../resources/battery 1.png';
 const steps = ['Parameter Details', 'String Sizing Analysis', 'Design'];
 
 function getStepContent(step, formikValues, handleFormikChange) {
@@ -14,7 +14,7 @@ function getStepContent(step, formikValues, handleFormikChange) {
     case 1:
       return <StringTable formikValues={formikValues} />;
     case 2:
-      return <LineDiagram numberOfLines={5} />;
+        return <LineDiagram numberOfLines={5} imageSrc={batteryImage} />;
     default:
       throw new Error('Unknown step');
   }

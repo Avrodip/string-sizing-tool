@@ -1,4 +1,4 @@
-import {React,useEffect} from 'react';
+import {React,useEffect,useState} from 'react';
 import {
   Grid,
   Typography,
@@ -15,8 +15,14 @@ import {
   TableBody
 } from '@mui/material';
 import { useFormik } from 'formik';
-
+import axios from 'axios';
 const ModuleParametersTable = ({ onFormikChange }) => {
+    const [formData, setFormData] = useState({
+        projectName: '',
+        projectCapacity: '',
+        actionType:1
+      });
+    const [projectID,setprojectID]=useState('');
   const formik = useFormik({
     initialValues: {
       moduleParamDet: {
@@ -78,7 +84,7 @@ const ModuleParametersTable = ({ onFormikChange }) => {
           },
           body: JSON.stringify({
             parameterID: null,
-            projectID: 2,
+            projectID: projectID,
             moduleParamDet: values.moduleParamDet,
             inverterParamDet: values.inverterParamDet,
             weatherParamDet: values.weatherDetails,
@@ -144,6 +150,25 @@ const ModuleParametersTable = ({ onFormikChange }) => {
     return rows;
   };
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Send the form data to the API endpoint using Axios
+      console.log("formData",formData);
+      const response = await axios.post('http://localhost:4000/api/master/updateProject', formData);
+      console.log('Response from API:', response.data.data[0].projectID);
+      setprojectID(response.data.data[0].projectID);
+      // Optionally, handle success response here
+    } catch (error) {
+      console.error('Error:', error);
+      // Optionally, handle error response here
+    }
+  };
+
   useEffect(() => {
     // Calculate and set the value for Voc based on ratedPower when moduleParamDet changes
     formik.setFieldValue(
@@ -154,6 +179,7 @@ const ModuleParametersTable = ({ onFormikChange }) => {
         'weatherDetails.stcCellTemperature.Voc',
         (formik.values.moduleParamDet.openCircuitVoltage * (1 + (formik.values.moduleParamDet.tempCoefficientVoc / 100) * (formik.values.weatherDetails.stcCellTemperature.Tcell - 25))).toFixed(1)
       );
+
 
       formik.setFieldValue(
         'weatherDetails.mediumCellTemperature.Voc',
@@ -202,7 +228,52 @@ const ModuleParametersTable = ({ onFormikChange }) => {
       );
   }, [formik.values.moduleParamDet,formik.values.weatherDetails]); // Add moduleParamDet as dependency
   return (
+    <>
+     <Grid container spacing={1} sx={{ border: '1px solid #e0e0e0' }}>
+      {/* Project Name */}
+      <Grid item xs={12} md={2}>
+        <form onSubmit={handleSubmit}>
+          <Box sx={{ p: 2 }}>
+            <TextField
+              required
+              id="projectName"
+              name="projectName"
+              label="Project Name"
+              variant="outlined"
+              value={formData.projectName}
+              onChange={handleChange}
+            />
+          </Box>
+        </form>
+      </Grid>
+
+      {/* Project Capacity */}
+      <Grid item xs={12} md={2}>
+        <form onSubmit={handleSubmit}>
+          <Box sx={{ p: 2 }}>
+            <TextField
+              required
+              id="projectCapacity"
+              name="projectCapacity"
+              label="Project Capacity"
+              variant="outlined"
+              value={formData.projectCapacity}
+              onChange={handleChange}
+            />
+          </Box>
+        </form>
+      </Grid>
+
+      {/* Submit Button */}
+      <Grid item xs={12} md={2}>
+        <Box sx={{ p: 2 }}>
+          <Button variant="contained" onClick={handleSubmit}>Submit</Button>
+        </Box>
+      </Grid>
+    </Grid>
+
     <Grid container spacing={2}>
+        
       {/* Module Parameters Form */}
       <Grid item xs={12} md={3}>
         <Typography
@@ -698,7 +769,7 @@ const ModuleParametersTable = ({ onFormikChange }) => {
 
       {/* String and Module Details Table */}
       {/* <Grid item xs={12} md={6}> */}
-        <Paper elevation={3} style={{ padding: '20px', border: '1px solid #ccc', alignContent: 'center', marginTop:'8px' }}>
+        <Paper style={{ padding: '20px', border: '1px solid #ccc', alignContent: 'center', marginTop:'8px' }}>
           <TableContainer>
             <Table size="small">
               <TableHead>
@@ -720,6 +791,7 @@ const ModuleParametersTable = ({ onFormikChange }) => {
         </Paper>
       </Grid>
     </Grid>
+    </>
   );
 };
 
