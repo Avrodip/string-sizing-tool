@@ -4,6 +4,7 @@ import {
   Typography,
   TextField,
   Paper,
+  Stack,
   Box,
   Button,
   InputAdornment,
@@ -16,8 +17,60 @@ import {
 } from '@mui/material';
 import { useFormik } from 'formik';
 import axios from 'axios';
-const ModuleParametersTable = ({ onFormikChange }) => {
+import * as yup from 'yup';
+const validationSchema = yup.object().shape({
+    moduleParamDet: yup.object().shape({
+        solarModule: yup.number().required('This field is required'),
+        shortCircuitCurrent: yup.number().required('This field is required'),
+        openCircuitVoltage: yup.number().required('This field is required'),
+        ratedPower: yup.number().required('This field is required'),
+        tempCoefficientIsc: yup.number().required('This field is required'),
+        tempCoefficientVoc: yup.number().required('This field is required'),
+        tempCoefficientPmpp: yup.number().required('This field is required')
+    }),
+    inverterParamDet: yup.object().shape({
+        inverter: yup.number().required('This field is required'),
+        inverters: yup.array().of(yup.object().shape({
+            numberOfStrings: yup.number().required('This field is required'),
+            numberOfModules: yup.number().required('This field is required')
+        })),
+        acNominalPower: yup.number().required('This field is required'),
+        numberOfInverters: yup.number().required('This field is required'),
+        dcStartVoltage: yup.number().required('This field is required'),
+        dcMaximumVoltage: yup.number().required('This field is required'),
+        dcMpptRangeLowerLimit: yup.number().required('This field is required'),
+        dcMpptRangeUpperLimit: yup.number().required('This field is required')
+    }),
+    weatherDetails: yup.object().shape({
+        recordLowAmbientTemperature: yup.object().shape({
+            Tcell: yup.number().required('This field is required'),
+            Voc: yup.number().required('This field is required'),
+            Isc: yup.number().required('This field is required'),
+            Pmpp: yup.number().required('This field is required')
+        }),
+        stcCellTemperature: yup.object().shape({
+            Tcell: yup.number().required('This field is required'),
+            Voc: yup.number().required('This field is required'),
+            Isc: yup.number().required('This field is required'),
+            Pmpp: yup.number().required('This field is required')
+        }),
+        mediumCellTemperature: yup.object().shape({
+            Tcell: yup.number().required('This field is required'),
+            Voc: yup.number().required('This field is required'),
+            Isc: yup.number().required('This field is required'),
+            Pmpp: yup.number().required('This field is required')
+        }),
+        maximumCellTemperature: yup.object().shape({
+            Tcell: yup.number().required('This field is required'),
+            Voc: yup.number().required('This field is required'),
+            Isc: yup.number().required('This field is required'),
+            Pmpp: yup.number().required('This field is required')
+        })
+    })
+});
+const ModuleParametersTable = ({NextStep,onFormikChange }) => {
     const [formData, setFormData] = useState({
+        projectID: null,
         projectName: '',
         projectCapacity: '',
         actionType:1
@@ -73,10 +126,13 @@ const ModuleParametersTable = ({ onFormikChange }) => {
           }
       }
     },
-
+    // validationSchema,
     onSubmit: async (values) => {
       console.log('Onsubmit is calling');
       try {
+        const responseProject = await axios.post('http://localhost:4000/api/master/updateProject', formData);
+        console.log('Response from API:', responseProject.data.data[0].projectID);
+        setprojectID(responseProject.data.data[0].projectID);
         const response = await fetch('http://localhost:4000/api/master/updateParameter', {
           method: 'POST',
           headers: {
@@ -84,7 +140,7 @@ const ModuleParametersTable = ({ onFormikChange }) => {
           },
           body: JSON.stringify({
             parameterID: null,
-            projectID: projectID,
+            projectID: responseProject.data.data[0].projectID,
             moduleParamDet: values.moduleParamDet,
             inverterParamDet: values.inverterParamDet,
             weatherParamDet: values.weatherDetails,
@@ -96,6 +152,7 @@ const ModuleParametersTable = ({ onFormikChange }) => {
           throw new Error('Failed to submit form data');
         }
         alert('Form data submitted successfully');
+        NextStep();
       } catch (error) {
         console.error('Error:', error);
         alert('An error occurred while submitting form data');
@@ -106,68 +163,97 @@ const ModuleParametersTable = ({ onFormikChange }) => {
   const handleFormChange = (event) => {
     formik.setFieldValue(event.target.name, event.target.value);
   };
-  console.log(formik.values);
+//   console.log(formik.values);
   onFormikChange(formik.values);
   const generateRows = (numberOfRows) => {
-    const rows = [];
-    for (let i = 0; i < numberOfRows; i++) {
-      const inverter = formik.values.inverterParamDet.inverters[i] || { numberOfStrings: '', numberOfModules: '' };
-      rows.push(
-        <TableRow key={i}>
-          <TableCell>Inv- {i + 1}</TableCell>
-          <TableCell align="center">
-            <TextField
-              variant="outlined"
-              size="small"
-              fullWidth
-              value={inverter.numberOfStrings}
-              onChange={(event) => {
-                const newInverters = [...formik.values.inverterParamDet.inverters];
-                newInverters[i] = { ...newInverters[i], numberOfStrings: event.target.value };
-                formik.setFieldValue(`inverterParamDet.inverters`, newInverters);
-              }}
-            />
-          </TableCell>
-          <TableCell align="center">
-            <TextField
-              variant="outlined"
-              size="small"
-              fullWidth
-              value={inverter.numberOfModules}
-              onChange={(event) => {
-                const newInverters = [...formik.values.inverterParamDet.inverters];
-                newInverters[i] = { ...newInverters[i], numberOfModules: event.target.value };
-                formik.setFieldValue(`inverterParamDet.inverters`, newInverters);
-              }}
-            />
-          </TableCell>
-          <TableCell align="center">
-            100 kW
-          </TableCell>
-        </TableRow>
-      );
+    console.log(numberOfRows)
+    if (numberOfRows === 0) {
+        return (
+            <TableRow>
+                <TableCell colSpan={4} align="center">No inverters added yet</TableCell>
+            </TableRow>
+        );
     }
+
+    let totalNumberOfStrings = 0;
+    let totalNumberOfModules = 0;
+    const rows = [];
+
+    for (let i = 0; i < numberOfRows; i++) {
+        const inverter = formik.values.inverterParamDet.inverters[i] || { numberOfStrings: '', numberOfModules: '' };
+
+        // Increment total number of strings and modules
+        totalNumberOfStrings += parseInt(inverter.numberOfStrings || 0);
+        totalNumberOfModules += parseInt(inverter.numberOfModules || 0);
+
+        rows.push(
+            <TableRow key={i}>
+                <TableCell>Inv- {i + 1}</TableCell>
+                <TableCell align="center">
+                    <TextField
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        value={inverter.numberOfStrings}
+                        onChange={(event) => {
+                            const newInverters = [...formik.values.inverterParamDet.inverters];
+                            newInverters[i] = { ...newInverters[i], numberOfStrings: event.target.value };
+                            formik.setFieldValue(`inverterParamDet.inverters`, newInverters);
+                        }}
+                    />
+                </TableCell>
+                <TableCell align="center">
+                    <TextField
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        value={inverter.numberOfModules}
+                        onChange={(event) => {
+                            const newInverters = [...formik.values.inverterParamDet.inverters];
+                            newInverters[i] = { ...newInverters[i], numberOfModules: event.target.value };
+                            formik.setFieldValue(`inverterParamDet.inverters`, newInverters);
+                        }}
+                    />
+                </TableCell>
+                <TableCell align="center">
+                    100 kW
+                </TableCell>
+            </TableRow>
+        );
+    }
+
+    // Add total row
+    rows.push(
+        <TableRow key="total" className="total-row">
+            <TableCell>Total</TableCell>
+            <TableCell align="center">{totalNumberOfStrings}</TableCell>
+            <TableCell align="center">{totalNumberOfModules}</TableCell>
+            <TableCell align="center">100 kW</TableCell>
+        </TableRow>
+    );
+
     return rows;
-  };
+};
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Send the form data to the API endpoint using Axios
-      console.log("formData",formData);
-      const response = await axios.post('http://localhost:4000/api/master/updateProject', formData);
-      console.log('Response from API:', response.data.data[0].projectID);
-      setprojectID(response.data.data[0].projectID);
-      // Optionally, handle success response here
-    } catch (error) {
-      console.error('Error:', error);
-      // Optionally, handle error response here
-    }
-  };
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     try {
+//       // Send the form data to the API endpoint using Axios
+//       console.log("formData",formData);
+//       const response = await axios.post('http://localhost:4000/api/master/updateProject', formData);
+//       console.log('Response from API:', response.data.data[0].projectID);
+//       setprojectID(response.data.data[0].projectID);
+      
+//     } catch (error) {
+//       console.error('Error:', error);
+//       // Optionally, handle error response here
+//     }
+//   };
 
   useEffect(() => {
     // Calculate and set the value for Voc based on ratedPower when moduleParamDet changes
@@ -179,7 +265,6 @@ const ModuleParametersTable = ({ onFormikChange }) => {
         'weatherDetails.stcCellTemperature.Voc',
         (formik.values.moduleParamDet.openCircuitVoltage * (1 + (formik.values.moduleParamDet.tempCoefficientVoc / 100) * (formik.values.weatherDetails.stcCellTemperature.Tcell - 25))).toFixed(1)
       );
-
 
       formik.setFieldValue(
         'weatherDetails.mediumCellTemperature.Voc',
@@ -228,11 +313,10 @@ const ModuleParametersTable = ({ onFormikChange }) => {
       );
   }, [formik.values.moduleParamDet,formik.values.weatherDetails]); // Add moduleParamDet as dependency
   return (
-    <>
+    <Grid component='form' noValidate autoComplete="off" onSubmit={formik.handleSubmit}>
      <Grid container spacing={1} sx={{ border: '1px solid #e0e0e0' }}>
       {/* Project Name */}
       <Grid item xs={12} md={2}>
-        <form onSubmit={handleSubmit}>
           <Box sx={{ p: 2 }}>
             <TextField
               required
@@ -244,12 +328,10 @@ const ModuleParametersTable = ({ onFormikChange }) => {
               onChange={handleChange}
             />
           </Box>
-        </form>
       </Grid>
 
       {/* Project Capacity */}
       <Grid item xs={12} md={2}>
-        <form onSubmit={handleSubmit}>
           <Box sx={{ p: 2 }}>
             <TextField
               required
@@ -261,14 +343,6 @@ const ModuleParametersTable = ({ onFormikChange }) => {
               onChange={handleChange}
             />
           </Box>
-        </form>
-      </Grid>
-
-      {/* Submit Button */}
-      <Grid item xs={12} md={2}>
-        <Box sx={{ p: 2 }}>
-          <Button variant="contained" onClick={handleSubmit}>Submit</Button>
-        </Box>
       </Grid>
     </Grid>
 
@@ -283,7 +357,6 @@ const ModuleParametersTable = ({ onFormikChange }) => {
         >
           Module Parameters
         </Typography>
-        <form onSubmit={formik.handleSubmit}>
           <Box sx={{ p: 2 }}>
             <TextField
               required
@@ -393,7 +466,6 @@ const ModuleParametersTable = ({ onFormikChange }) => {
               }}
             />
           </Box>
-        </form>
       </Grid>
 
       {/* Inverter Parameters Form */}
@@ -405,7 +477,6 @@ const ModuleParametersTable = ({ onFormikChange }) => {
         >
           Inverter Parameters
         </Typography>
-        <form onSubmit={formik.handleSubmit}>
           <Box sx={{ p: 2 }}>
             <TextField
               required
@@ -515,12 +586,6 @@ const ModuleParametersTable = ({ onFormikChange }) => {
               }}
             />
           </Box>
-          <Box sx={{ p: 2 }}>
-            <Button variant="contained" type="submit">
-              Submit
-            </Button>
-          </Box>
-        </form>
       </Grid>
 
       {/* Weather Details Form */}
@@ -769,29 +834,46 @@ const ModuleParametersTable = ({ onFormikChange }) => {
 
       {/* String and Module Details Table */}
       {/* <Grid item xs={12} md={6}> */}
-        <Paper style={{ padding: '20px', border: '1px solid #ccc', alignContent: 'center', marginTop:'8px' }}>
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center" colSpan={4} sx={{backgroundColor:'#343A40', color:'white'}}>
-                    String and Module Details
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Inverter</TableCell>
-                  <TableCell align="center">No of String</TableCell>
-                  <TableCell align="center">No of Module</TableCell>
-                  <TableCell align="center">Capacity</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>{generateRows(formik.values.inverterParamDet.numberOfInverters)}</TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+      <Grid>
+  <TableContainer>
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          <TableCell align="center" colSpan={4} sx={{backgroundColor:'#343A40', color:'white'}}>
+            String and Module Details
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>Inverter</TableCell>
+          <TableCell align="center">No of String</TableCell>
+          <TableCell align="center">No of Module</TableCell>
+          <TableCell align="center">Capacity</TableCell>
+        </TableRow>
+      </TableHead>
+      {formik.values.inverterParamDet.numberOfInverters && formik.values.inverterParamDet.numberOfInverters !== '' && formik.values.inverterParamDet.numberOfInverters !== 0 && (
+        <TableBody>{generateRows(formik.values.inverterParamDet.numberOfInverters)}</TableBody>
+      )}
+      {/* {console.log(formik.values.inverterParamDet.numberOfInverters)} */}
+      {!formik.values.inverterParamDet.numberOfInverters || formik.values.inverterParamDet.numberOfInverters == '' && (
+        <TableBody>
+          <TableRow>
+            <TableCell colSpan={4} align="center">No of Inverters not selected</TableCell>
+          </TableRow>
+        </TableBody>
+      )}
+    </Table>
+  </TableContainer>
+</Grid>
+
       </Grid>
     </Grid>
-    </>
+    <Grid xs={12} sx={{ mx: 2 }}>
+                <Stack direction="row" justifyContent="flex-end" gap={2}>
+                    <Button sx={{ mt: 2.5 }} color='error' >Back</Button>
+                    <Button variant="contained" sx={{ mt: 2.5 }} type='submit'>Next</Button>
+                </Stack>
+            </Grid>
+    </Grid>
   );
 };
 

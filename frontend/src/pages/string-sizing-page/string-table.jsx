@@ -1,7 +1,7 @@
 import React from 'react';
-import { Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Typography } from '@mui/material';
+import { Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody,Grid,Stack,Button } from '@mui/material';
 
-function StringTable({ formikValues }) {
+function StringTable({ formikValues,NextStep,prevStep }) {
   console.log('formik', formikValues);
   const generateRows = () => {
     const rows = [];
@@ -16,6 +16,7 @@ function StringTable({ formikValues }) {
         formikValues.moduleParamDet.openCircuitVoltage *
         (1 + (formikValues.moduleParamDet.tempCoefficientVoc / 100) * (formikValues.weatherDetails.stcCellTemperature.Tcell - 25))
       ).toFixed(0);
+
       const mediumValue = (
         i *
         formikValues.moduleParamDet.openCircuitVoltage *
@@ -108,6 +109,7 @@ function StringTable({ formikValues }) {
   };
 
   return (
+    <Grid>
     <Paper>
       <TableContainer>
         <Table>
@@ -137,6 +139,13 @@ function StringTable({ formikValues }) {
         </Table>
       </TableContainer>
     </Paper>
+    <Grid xs={12} sx={{ mx: 2 }}>
+                <Stack direction="row" justifyContent="flext-end" gap={2}>
+                    <Button sx={{ mt: 2.5 }} color='error' onClick={prevStep}>Back</Button>
+                    <Button variant="contained" sx={{ mt: 2.5 }} type='submit' onClick={NextStep} >Next</Button>
+                </Stack>
+            </Grid>
+    </Grid>
   );
 }
 
