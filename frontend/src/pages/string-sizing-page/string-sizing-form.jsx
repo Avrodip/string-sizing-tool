@@ -78,6 +78,8 @@ const ModuleParametersTable = ({NextStep,onFormikChange }) => {
     const [projectID,setprojectID]=useState('');
   const formik = useFormik({
     initialValues: {
+        projectName:'',
+        projectCapacity:'',
       moduleParamDet: {
         solarModule: '',
         shortCircuitCurrent: '',
@@ -163,10 +165,9 @@ const ModuleParametersTable = ({NextStep,onFormikChange }) => {
   const handleFormChange = (event) => {
     formik.setFieldValue(event.target.name, event.target.value);
   };
-//   console.log(formik.values);
   onFormikChange(formik.values);
   const generateRows = (numberOfRows) => {
-    console.log(numberOfRows)
+    // console.log(numberOfRows)
     if (numberOfRows === 0) {
         return (
             <TableRow>
@@ -238,8 +239,15 @@ const ModuleParametersTable = ({NextStep,onFormikChange }) => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if(e.target.name=='projectName'){
+    formik.setFieldValue(`projectName`, e.target.value);
+    }
+    else{
+    formik.setFieldValue(`projectCapacity`, e.target.value);
+    }
   };
-
+  
+console.log(formik.values);
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 //     try {
