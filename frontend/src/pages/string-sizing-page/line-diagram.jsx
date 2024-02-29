@@ -29,18 +29,18 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
         var moveToLine = 25;
         var lineTo = 25;
         var stringIndex = 0;
-
+        ctx.font = "10px Arial";
         const UnionImg = new Image();
         UnionImg.src = Union;
 
         const imgInverter =new Image();
-        imgInverter.src=Inverter
+        imgInverter.src=battery
 
         const grid =new Image();
         grid.src=distribution
 
         const meter=new Image();
-        meter.src=battery
+        meter.src= Inverter
 
         const electricpole=new Image();
         electricpole.src=tower
@@ -130,13 +130,13 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
 
             var imgDistance = 50;
             imgDistance = centerNumber - imgDistance;
-            ctx.drawImage(imgInverter, startPossition + 285, imgDistance, 100, 100)
+            ctx.drawImage(imgInverter, startPossition + 290, imgDistance, 80, 80)
             ctx.beginPath();
             var inverterName = formikValues.inverterParamDet.inverter;
-            ctx.fillText("Solar Inverter (" + inverterName + " - (" + formikValues.inverterParamDet.acNominalPower + " kW))", startPossition + 270, imgDistance + 110);
+            ctx.fillText("Solar Inverter (" + inverterName + " - (" + formikValues.inverterParamDet.acNominalPower + " kW))", startPossition + 260, imgDistance + 110);
 
             //*logic for draw horizontal line for output*/ 
-            ctx.moveTo(startPossition + 370, centerNumber);
+            ctx.moveTo(startPossition + 360, centerNumber);
             ctx.lineTo(startPossition + 500, centerNumber);
             //ctx.stroke();
             ctx.moveTo(startPossition + 460, horizontalLinemoveTo - 5);
@@ -175,8 +175,8 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
         ctx.lineTo(startPossition + 555, horizintalCenterPoint);
         ctx.stroke();
         //ctx.fillText("4C X 25 Sq.mm", startPossition + 510, horizintalCenterPoint + 15);
-        ctx.fillText("Copper/Aluminum", startPossition + 510, horizintalCenterPoint + 15);
-        ctx.fillText("Cable", startPossition + 510, horizintalCenterPoint + 30);
+        ctx.fillText("Copper/", startPossition + 526    , horizintalCenterPoint + 15);
+        ctx.fillText("Aluminum Cable", startPossition + 510, horizintalCenterPoint + 30);
 
 
 
@@ -184,7 +184,7 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
         ctx.beginPath();
         ctx.fillText('AC Distribution Box', startPossition + 600, horizintalCenterPoint - verticalLineDistance + 120);
 
-        ctx.moveTo(startPossition + 785, horizintalCenterPoint);
+        ctx.moveTo(startPossition + 800, horizintalCenterPoint);
         ctx.lineTo(startPossition + 680, horizintalCenterPoint);
         //ctx.stroke(); 
         ctx.moveTo(startPossition + 725, horizintalCenterPoint - 5);
@@ -204,7 +204,7 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
          ctx.beginPath();
          ctx.fillText('Energy Meter', startPossition + 800, horizintalCenterPoint - verticalLineDistance + 120);
  
-         ctx.moveTo(startPossition + 870, horizintalCenterPoint);
+         ctx.moveTo(startPossition + 857, horizintalCenterPoint);
          ctx.lineTo(startPossition + 970, horizintalCenterPoint);
          ctx.stroke();
          ctx.moveTo(startPossition + 915, horizintalCenterPoint - 5);
