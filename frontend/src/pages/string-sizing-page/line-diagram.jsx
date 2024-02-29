@@ -4,7 +4,9 @@ import Inverter from '../resources/Group 516.png';
 import distribution from '../resources/distribution-board 1.png';
 import battery from '../resources/battery 1.png';
 import tower from '../resources/electric-tower 1.png';
-const LineDiagram = ({ formikValues }) => {
+
+import {Grid,Stack,Button} from '@mui/material';
+const LineDiagram = ({ formikValues ,prevStep}) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -217,7 +219,7 @@ const LineDiagram = ({ formikValues }) => {
  
          ctx.drawImage(electricpole, startPossition + 970, horizintalCenterPoint - verticalLineDistance, 100, 100)
          ctx.beginPath();
-         ctx.fillText('Utility Grid', startPossition + 980, horizintalCenterPoint - verticalLineDistance + 120);
+         ctx.fillText('Utility Grid', startPossition + 1000, horizintalCenterPoint - verticalLineDistance + 120);
       }
     };
 
@@ -235,9 +237,14 @@ const LineDiagram = ({ formikValues }) => {
   }, [formikValues]);
 
   return (
-    <div>
+    <Grid>
       <canvas ref={canvasRef}></canvas>
-    </div>
+      <Grid xs={12} sx={{ mx: 2 }}>
+                <Stack direction="row" justifyContent="flext-end" gap={2}>
+                    <Button sx={{ mt: 2.5 }} color='error' onClick={prevStep}>Back</Button>
+                </Stack>
+            </Grid>
+    </Grid>
   );
 };
 

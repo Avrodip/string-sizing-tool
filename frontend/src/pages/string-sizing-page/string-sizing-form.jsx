@@ -167,25 +167,21 @@ const ModuleParametersTable = ({NextStep,onFormikChange }) => {
   };
   onFormikChange(formik.values);
   const generateRows = (numberOfRows) => {
-    // console.log(numberOfRows)
-    if (numberOfRows === 0) {
-        return (
-            <TableRow>
-                <TableCell colSpan={4} align="center">No inverters added yet</TableCell>
-            </TableRow>
-        );
-    }
-
+    
     let totalNumberOfStrings = 0;
     let totalNumberOfModules = 0;
+    let totalCapacity = 0;
+
     const rows = [];
 
     for (let i = 0; i < numberOfRows; i++) {
         const inverter = formik.values.inverterParamDet.inverters[i] || { numberOfStrings: '', numberOfModules: '' };
 
-        // Increment total number of strings and modules
+        const capacity = ((parseInt(inverter.numberOfStrings) || 0) * (parseInt(inverter.numberOfModules) || 0) * formik.values.moduleParamDet.ratedPower)/1000;
+
         totalNumberOfStrings += parseInt(inverter.numberOfStrings || 0);
         totalNumberOfModules += parseInt(inverter.numberOfModules || 0);
+        totalCapacity += capacity;
 
         rows.push(
             <TableRow key={i}>
@@ -217,7 +213,7 @@ const ModuleParametersTable = ({NextStep,onFormikChange }) => {
                     />
                 </TableCell>
                 <TableCell align="center">
-                    100 kW
+                    {capacity} kW
                 </TableCell>
             </TableRow>
         );
@@ -229,12 +225,13 @@ const ModuleParametersTable = ({NextStep,onFormikChange }) => {
             <TableCell>Total</TableCell>
             <TableCell align="center">{totalNumberOfStrings}</TableCell>
             <TableCell align="center">{totalNumberOfModules}</TableCell>
-            <TableCell align="center">100 kW</TableCell>
+            <TableCell align="center">{totalCapacity} kW</TableCell>
         </TableRow>
     );
 
     return rows;
 };
+
 
 
   const handleChange = (e) => {

@@ -109,7 +109,7 @@ function StringSizingForm() {
           <CardContent>
             {stepItems[activeStep] == 'Parameter Details' && <ModuleParameterTable NextStep={NextStep} onFormikChange={onFormikChange } />}
             {stepItems[activeStep] == 'String Sizing Analysis' && <StringTable formikValues={formikValues} NextStep={NextStep} prevStep={prevStep} /> }
-            {stepItems[activeStep] == 'Design' && <LineDiagram NextStep={NextStep} prevStep={prevStep} numberOfLines={5} imageSrc={batteryImage} formikValues={formikValues} />}
+            {stepItems[activeStep] == 'Design' && <LineDiagram  prevStep={prevStep} formikValues={formikValues} />}
           </CardContent>
         </MainCard>
       </Box>
