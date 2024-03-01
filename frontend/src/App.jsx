@@ -21,6 +21,7 @@ const App = () => (
     <Locales>
       <ScrollTop>
         <AuthProvider>
+            
           <>
             <Notistack>
               <RouterProvider router={router} />

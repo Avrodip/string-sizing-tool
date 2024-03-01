@@ -1,4 +1,7 @@
 import { React, useEffect, useState } from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import {
   Grid,
   Typography,
@@ -73,7 +76,8 @@ const validationSchema = yup.object().shape({
   })
 });
 const ModuleParametersTable = ({ NextStep, onFormikChange }) => {
-  const [formData, setFormData] = useState({
+    let totalCapacity;
+    const [formData, setFormData] = useState({
     projectID: null,
     projectName: '',
     projectCapacity: '',
@@ -132,36 +136,43 @@ const ModuleParametersTable = ({ NextStep, onFormikChange }) => {
     },
     validationSchema,
     onSubmit: async (values) => {
-      console.log('Onsubmit is calling');
-      try {
-        const responseProject = await axios.post('http://localhost:4000/api/master/updateProject', formData);
-        console.log('Response from API:', responseProject.data.data[0].projectID);
-        setprojectID(responseProject.data.data[0].projectID);
-        const response = await fetch('http://localhost:4000/api/master/updateParameter', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            parameterID: null,
-            projectID: responseProject.data.data[0].projectID,
-            moduleParamDet: values.moduleParamDet,
-            inverterParamDet: values.inverterParamDet,
-            weatherParamDet: values.weatherDetails,
-            stringSizingDet: values.inverterParamDet.inverters,
-            actionType: 1
-          })
-        });
-        if (!response.ok) {
-          throw new Error('Failed to submit form data');
+        console.log('Onsubmit is calling');
+
+        try {
+          if(formik.values.projectCapacity < totalCapacity){
+            throw new Error('Total Capacity should be less than Project capacity');
+          }
+          const responseProject = await axios.post('http://localhost:4000/api/master/updateProject', formData);
+          console.log('Response from API:', responseProject.data.data[0].projectID);
+          setprojectID(responseProject.data.data[0].projectID);
+          const response = await fetch('http://localhost:4000/api/master/updateParameter', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              parameterID: null,
+              projectID: responseProject.data.data[0].projectID,
+              moduleParamDet: values.moduleParamDet,
+              inverterParamDet: values.inverterParamDet,
+              weatherParamDet: values.weatherDetails,
+              stringSizingDet: values.inverterParamDet.inverters,
+              actionType: 1
+            })
+          });
+          if (!response.ok) {
+            throw new Error('Failed to submit form data');
+          }
+          toast.success('Form data submitted successfully', {
+            onClose: () => NextStep(),
+            autoClose: 2000
+          });
+        } catch (error) {
+          toast.error(error.message,{
+            autoClose: 2000
+          });
         }
-        alert('Form data submitted successfully');
-        NextStep();
-      } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while submitting form data');
       }
-    }
   });
 
   const handleFormChange = (event) => {
@@ -171,21 +182,26 @@ const ModuleParametersTable = ({ NextStep, onFormikChange }) => {
   const generateRows = (numberOfRows) => {
     let totalNumberOfStrings = 0;
     let totalNumberOfModules = 0;
-    let totalCapacity = 0;
-
+    totalCapacity = 0;
+    let capacityExceeded = false; 
+  
     const rows = [];
-
+  
     for (let i = 0; i < numberOfRows; i++) {
       const inverter = formik.values.inverterParamDet.inverters[i] || { numberOfStrings: '', numberOfModules: '' };
-
+  
       const capacity =
         ((parseInt(inverter.numberOfStrings) || 0) * (parseInt(inverter.numberOfModules) || 0) * formik.values.moduleParamDet.ratedPower) /
         1000;
-
+  
       totalNumberOfStrings += parseInt(inverter.numberOfStrings || 0);
       totalNumberOfModules += parseInt(inverter.numberOfModules || 0);
       totalCapacity += capacity;
-
+        
+      // Check if total capacity exceeds project capacity
+      if (totalCapacity > formik.values.projectCapacity) {
+        capacityExceeded = true;
+      }
       rows.push(
         <TableRow key={i}>
           <TableCell>Inv- {i + 1}</TableCell>
@@ -219,19 +235,20 @@ const ModuleParametersTable = ({ NextStep, onFormikChange }) => {
         </TableRow>
       );
     }
-
-    // Add total row
+  
+    // Add total row with capacity exceeded error if applicable
     rows.push(
-      <TableRow key="total" className="total-row">
+      <TableRow key="total" className={capacityExceeded ? "total-row error" : "total-row"}>
         <TableCell>Total</TableCell>
         <TableCell align="center">{totalNumberOfStrings}</TableCell>
         <TableCell align="center">{totalNumberOfModules}</TableCell>
-        <TableCell align="center">{totalCapacity} kW</TableCell>
+        <TableCell align="center">{totalCapacity} kW {capacityExceeded && "(Capacity Exceeded)"}</TableCell>
       </TableRow>
     );
-
+  
     return rows;
   };
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -354,6 +371,8 @@ const ModuleParametersTable = ({ NextStep, onFormikChange }) => {
     );
   }, [formik.values.moduleParamDet, formik.values.weatherDetails]); // Add moduleParamDet as dependency
   return (
+    <Grid>
+           
     <Grid component="form" noValidate autoComplete="off" onSubmit={formik.handleSubmit}>
       <Grid container spacing={1} sx={{ border: '1px solid #e0e0e0' }}>
         {/* Project Name */}
@@ -991,6 +1010,8 @@ const ModuleParametersTable = ({ NextStep, onFormikChange }) => {
           </Button>
         </Stack>
       </Grid>
+    </Grid>
+    <ToastContainer />
     </Grid>
   );
 };

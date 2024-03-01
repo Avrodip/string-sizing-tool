@@ -66,15 +66,14 @@
 
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import { CardContent,Grid,Stepper,Step,StepLabel, Stack, Typography } from '@mui/material';
+import { CardContent,Grid,Stepper,Step,StepLabel } from '@mui/material';
 import MainCard from 'components/MainCard';
-import { lazy } from 'react';
-import Loadable from 'components/Loadable';
-import { useParams } from 'react-router';
+// import { lazy } from 'react';
+// import Loadable from 'components/Loadable';
+// import { useParams } from 'react-router';
 import ModuleParameterTable from './string-sizing-form';
 import StringTable from '../string-sizing-page/string-table';
 import LineDiagram from './line-diagram';
-import batteryImage from '../resources/battery 1.png';
 const stepItems = ['Parameter Details', 'String Sizing Analysis', 'Design'];
 
 function StringSizingForm() {
@@ -96,7 +95,7 @@ function StringSizingForm() {
     setActiveStep(0);
   };
   return (
-    <Grid>
+    <Grid>  
       <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
         {stepItems.map((label) => (
           <Step key={label}>

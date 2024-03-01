@@ -21,7 +21,7 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
 
     const drawDiagram = (ctx) => {
       if (formikValues && formikValues.inverterParamDet && formikValues.inverterParamDet.inverters) {
-        var startPossition = 100;
+        var startPossition = 120;
         var modulePointDistance = 50;
         var lineDistance = 50;
         var verticalLineDistance = 50;
@@ -29,7 +29,7 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
         var moveToLine = 25;
         var lineTo = 25;
         var stringIndex = 0;
-        ctx.font = "10px Arial";
+        ctx.font = "10px Poppins";
         const UnionImg = new Image();
         UnionImg.src = Union;
 
@@ -45,7 +45,6 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
         const electricpole=new Image();
         electricpole.src=tower
 
-
         for (var js = 0; js < formikValues.inverterParamDet.inverters.length; js++) {
           for (var a = 0; a < formikValues.inverterParamDet.inverters[js].numberOfStrings; a++) {
             distance = (a == 0 && js == 0 ? distance : modulePointDistance + distance);
@@ -57,8 +56,8 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
             ctx.drawImage(UnionImg, startPossition + 47, distance, 28, 30);
             ctx.drawImage(UnionImg, startPossition + 100, distance, 28, 30);
             ctx.fillText(1, startPossition + 22, distance + 45);
-            ctx.fillText(2, startPossition + 58, distance + 45);
-            ctx.fillText('-------', startPossition + 75, distance + 45);
+            ctx.fillText(2, startPossition + 55, distance + 45);
+            ctx.fillText('-------', startPossition + 68, distance + 45);
             ctx.fillText(formikValues.inverterParamDet.inverters[js].numberOfModules, startPossition + 110, distance + 45);
             ctx.beginPath();
             ctx.moveTo(startPossition + 130, moveToLine);
@@ -69,9 +68,8 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
             ctx.lineTo(startPossition + 170, moveToLine);
             ctx.stroke();
             stringIndex++;
-          }
+          } 
         }
-
 
         // Additional drawing logic
         var verticalLinemoveTo = 25;
@@ -117,7 +115,7 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
             horizontalLinelineTo = horizontalLineStart;
           }
           ctx.moveTo(startPossition + 200, horizontalLinemoveTo);
-            ctx.lineTo(startPossition + 300, horizontalLinelineTo);
+            ctx.lineTo(startPossition + 310, horizontalLinelineTo);
             //ctx.stroke();
             ctx.moveTo(startPossition + 260, horizontalLinemoveTo - 5);
             ctx.lineTo(startPossition + 270, horizontalLinelineTo);
@@ -125,18 +123,18 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
             ctx.moveTo(startPossition + 260, horizontalLinemoveTo + 5);
             ctx.lineTo(startPossition + 270, horizontalLinelineTo);
             ctx.stroke();
-            ctx.fillText("4 Sq.mm DC Cable", startPossition + 203, horizontalLinemoveTo + 15);
+            ctx.fillText("4 Sq.mm DC Cable", startPossition + 205, horizontalLinemoveTo + 15);
 
 
             var imgDistance = 50;
             imgDistance = centerNumber - imgDistance;
-            ctx.drawImage(imgInverter, startPossition + 290, imgDistance, 80, 80)
+            ctx.drawImage(imgInverter, startPossition + 300, imgDistance, 80, 80)
             ctx.beginPath();
             var inverterName = formikValues.inverterParamDet.inverter;
             ctx.fillText("Solar Inverter (" + inverterName + " - (" + formikValues.inverterParamDet.acNominalPower + " kW))", startPossition + 260, imgDistance + 110);
 
             //*logic for draw horizontal line for output*/ 
-            ctx.moveTo(startPossition + 360, centerNumber);
+            ctx.moveTo(startPossition + 370, centerNumber);
             ctx.lineTo(startPossition + 500, centerNumber);
             //ctx.stroke();
             ctx.moveTo(startPossition + 460, horizontalLinemoveTo - 5);
@@ -237,14 +235,14 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
   }, [formikValues]);
 
   return (
-    <Grid>
-      <canvas ref={canvasRef}></canvas>
-      <Grid xs={12} sx={{ mx: 2 }}>
-                <Stack direction="row" justifyContent="flext-end" gap={2}>
-                    <Button sx={{ mt: 2.5 }} color='error' onClick={prevStep}>Back</Button>
-                </Stack>
-            </Grid>
+    <Grid container>
+    <canvas ref={canvasRef}></canvas>
+    <Grid item xs={12} sx={{ mx: 2 }}>
+        <Stack direction="row" justifyContent="flex-end" gap={2}>
+            <Button sx={{ mt: 2.5 }} color='error' onClick={prevStep}>Back</Button>
+        </Stack>
     </Grid>
+</Grid>
   );
 };
 
