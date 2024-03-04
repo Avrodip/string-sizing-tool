@@ -21,7 +21,7 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
 
     const drawDiagram = (ctx) => {
       if (formikValues && formikValues.inverterParamDet && formikValues.inverterParamDet.inverters) {
-        var startPossition = 120;
+        var startPossition = 75;
         var modulePointDistance = 50;
         var lineDistance = 50;
         var verticalLineDistance = 50;
@@ -50,8 +50,8 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
             distance = (a == 0 && js == 0 ? distance : modulePointDistance + distance);
             moveToLine = (a == 0 && js == 0 ? moveToLine : moveToLine + lineDistance);
             lineTo = (a == 0 && js == 0 ? lineTo : lineTo + lineDistance);
-            ctx.fillText('String ' + (stringIndex + 1), 60, distance + 10);
-            ctx.fillText(formikValues.inverterParamDet.inverters[js].numberOfModules + ' Nos. Panel', 40, distance + 20);
+            ctx.fillText('String ' + (stringIndex + 1), 10, distance + 10);
+            ctx.fillText(formikValues.inverterParamDet.inverters[js].numberOfModules + ' Nos. Panel', 10, distance + 20);
             ctx.drawImage(UnionImg, startPossition + 10, distance, 28, 30);
             ctx.drawImage(UnionImg, startPossition + 47, distance, 28, 30);
             ctx.drawImage(UnionImg, startPossition + 100, distance, 28, 30);

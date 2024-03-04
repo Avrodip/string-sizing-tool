@@ -21,6 +21,7 @@ import {
 import { useFormik } from 'formik';
 import axios from 'axios';
 import * as yup from 'yup';
+import { update } from 'lodash';
 const validationSchema = yup.object().shape({
   projectName: yup.string().required('This field is required'),
   projectCapacity: yup.number().required('This field is required'),
@@ -75,7 +76,7 @@ const validationSchema = yup.object().shape({
     })
   })
 });
-const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID }) => {
+const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID,paramterID,setParamterID }) => {
   let totalCapacity;
   const [formData, setFormData] = useState({
     projectID: null,
@@ -136,13 +137,41 @@ const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID
     validationSchema,
     onSubmit: async (values) => {
       console.log('Onsubmit is calling');
-
       try {
         if (formik.values.projectCapacity < totalCapacity) {
           throw new Error('Total Capacity should be less than Project capacity');
         }
         if(projectID){
-            NextStep();
+            const data={
+                projectID: projectID,
+                projectName: formik.values.projectName,
+                projectCapacity: formik.values.projectCapacity,
+                actionType: 2
+            }
+            const responseProject = await axios.post('http://localhost:4000/api/master/updateProject', data);
+            const response = await fetch('http://localhost:4000/api/master/updateParameter', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  parameterID: paramterID,
+                  projectID: projectID,
+                  moduleParamDet: values.moduleParamDet,
+                  inverterParamDet: values.inverterParamDet,
+                  weatherParamDet: values.weatherDetails,
+                  stringSizingDet: values.inverterParamDet.inverters,
+                  actionType: 2
+                })
+              });
+              if (response.ok) {
+                NextStep();
+                
+              }
+              else{
+                throw new Error('Failed to submit form data');
+              }
+            
         }
         else{
         const responseProject = await axios.post('http://localhost:4000/api/master/updateProject', formData);
@@ -163,12 +192,17 @@ const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID
             actionType: 1
           })
         });
+       
         if (!response.ok) {
           throw new Error('Failed to submit form data');
         }
+        const responseData = await response.json();
+        setParamterID(responseData.data[0].parameterID);
+
+        // setParamterID(response.parameterID);
         toast.success('Form data submitted successfully', {
           onClose: () => NextStep(),
-          autoClose: 2000
+          autoClose: 1000
         });
     }
       } catch (error) {
@@ -269,7 +303,7 @@ const handleFormChange = (event) => {
         <TableCell align="center">{totalNumberOfStrings}</TableCell>
         <TableCell align="center">{totalNumberOfModules}</TableCell>
         <TableCell align="center">
-          {totalCapacity} kW {capacityExceeded && '(Capacity Exceeded)'}
+          {totalCapacity} kW {capacityExceeded && '(c Exceeded)'}
         </TableCell>
       </TableRow>
     );
@@ -344,7 +378,7 @@ const handleFormChange = (event) => {
     }
 }, [projectID]);
   useEffect(() => {
-    // Calculate and set the value for Voc based on ratedPower when moduleParamDet changes
+   
     formik.setFieldValue(
       'weatherDetails.recordLowAmbientTemperature.Voc',
       (
@@ -467,7 +501,7 @@ const handleFormChange = (event) => {
                 name="projectCapacity"
                 label="Project Capacity (kW)"
                 variant="outlined"
-                value={formik.projectCapacity}
+                value={formik.values.projectCapacity}
                 onChange={handleChange}
                 error={formik.touched.projectCapacity && Boolean(formik.errors.projectCapacity)}
                 helperText={formik.touched.projectCapacity && formik.errors.projectCapacity}
@@ -1022,7 +1056,6 @@ const handleFormChange = (event) => {
                       />
                     </TableCell>
                   </TableRow>
-                  {/* Add similar rows for other temperature conditions */}
                 </TableBody>
               </Table>
             </TableContainer>
