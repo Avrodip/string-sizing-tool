@@ -78,6 +78,7 @@ const stepItems = ['Parameter Details', 'String Sizing Analysis', 'Design'];
 
 function StringSizingForm() {
   const [activeStep, setActiveStep] = useState(0);
+  const [projectID,setProjectID]=useState(null);
   const [formikValues, setFormikValues] = useState(null);
     const onFormikChange = (values) => {
     setFormikValues(values);
@@ -106,7 +107,7 @@ function StringSizingForm() {
       <Box sx={{ width: '100%' }}>
         <MainCard content={false} title={stepItems[activeStep]}>
           <CardContent>
-            {stepItems[activeStep] == 'Parameter Details' && <ModuleParameterTable NextStep={NextStep} onFormikChange={onFormikChange } />}
+            {stepItems[activeStep] == 'Parameter Details' && <ModuleParameterTable NextStep={NextStep} onFormikChange={onFormikChange } projectID={projectID} setProjectID={setProjectID} />}
             {stepItems[activeStep] == 'String Sizing Analysis' && <StringTable formikValues={formikValues} NextStep={NextStep} prevStep={prevStep} /> }
             {stepItems[activeStep] == 'Design' && <LineDiagram  prevStep={prevStep} formikValues={formikValues} />}
           </CardContent>

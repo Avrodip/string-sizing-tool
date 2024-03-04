@@ -4,13 +4,13 @@ const app = express();
 
 app.use(express.json());
 class ProjectData{
-    async  getProjectList() {
+    async  getProjectList(req) {
         try {
             const result = await db.query('CALL usp_getProjectList()', {
                 replacements: {},
                 type: db.QueryTypes.SELECT,
             });
-            console.log("result", result);
+            // console.log("result", result);
             return result;
         } catch (error) {
             console.error("Error executing getProjectList:", error);
@@ -18,7 +18,7 @@ class ProjectData{
         }
     }
     async updateParameter(req){
-        console.log("reree",req.body)
+        // console.log("reree",req.body)
         const paramterID=req.body.parameterID ||0;
         const projectID = req.body.projectID;
         const moduleParamDet =req.body.moduleParamDet;
@@ -66,7 +66,7 @@ class ProjectData{
           throw error;
         }
     }
-    async deleteProject(){
+    async deleteProject(req){
         const projectID = req.body.projectID;
         const actionType = req.body.actionType;
         const procedureName = "usp_updateProjectDetails";
@@ -79,6 +79,21 @@ class ProjectData{
         } catch (error) {
           console.log(error);
           throw error;
+        }
+    }
+
+    async  getParamterByID(req) {
+        try {
+            const projectID=req.body.projectID;
+            const result = await db.query('CALL usp_getParamterByID(:projectID)', {
+                replacements: {projectID},
+                type: db.QueryTypes.SELECT,
+            });
+            // console.log("result", result);
+            return result;
+        } catch (error) {
+            console.error("Error executing getProjectList:", error);
+            throw error;
         }
     }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody,Grid,Stack,Button } from '@mui/material';
+import { Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Grid, Stack, Button } from '@mui/material';
 
-function StringTable({ formikValues,NextStep,prevStep }) {
+function StringTable({ formikValues, NextStep, prevStep }) {
   console.log('formik', formikValues);
   const generateRows = () => {
     const rows = [];
@@ -46,7 +46,8 @@ function StringTable({ formikValues,NextStep,prevStep }) {
                   : 'inherit'
             }}
           >
-            {lowestValue}{' V'}
+            {lowestValue}
+            {' V'}
           </TableCell>
 
           <TableCell
@@ -64,7 +65,8 @@ function StringTable({ formikValues,NextStep,prevStep }) {
                   : 'inherit'
             }}
           >
-            {stcValue}{' V'}
+            {stcValue}
+            {' V'}
           </TableCell>
 
           <TableCell
@@ -82,7 +84,8 @@ function StringTable({ formikValues,NextStep,prevStep }) {
                   : 'inherit'
             }}
           >
-            {mediumValue}{' V'}
+            {mediumValue}
+            {' V'}
           </TableCell>
 
           <TableCell
@@ -100,7 +103,8 @@ function StringTable({ formikValues,NextStep,prevStep }) {
                   : 'inherit'
             }}
           >
-            {maxValue}{' V'}
+            {maxValue}
+            {' V'}
           </TableCell>
         </TableRow>
       );
@@ -110,41 +114,45 @@ function StringTable({ formikValues,NextStep,prevStep }) {
 
   return (
     <Grid>
-    <Paper>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow style={{ backgroundColor: '#FAFAFB' }}>
-              <TableCell colSpan={5} align="center" style={{ border: '1px solid #ccc' }}>
-                String Length, String Voltages as Function of Cell Temperatures
-              </TableCell>
-            </TableRow>
-            <TableRow style={{ border: '1px solid #ccc' }}>
-              <TableCell style={{ border: '1px solid #ccc',width:'12%' }}>String Length</TableCell>
-              <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                Lowest({formikValues.weatherDetails.recordLowAmbientTemperature.Tcell})
-              </TableCell>
-              <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                STC({formikValues.weatherDetails.stcCellTemperature.Tcell})
-              </TableCell>
-              <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                Medium({formikValues.weatherDetails.mediumCellTemperature.Tcell})
-              </TableCell>
-              <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                Maximum({formikValues.weatherDetails.maximumCellTemperature.Tcell})
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>{generateRows()}</TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
-    <Grid xs={12} sx={{ mx: 2 }}>
-                <Stack direction="row" justifyContent="flext-end" gap={2}>
-                    <Button sx={{ mt: 2.5 }} color='error' onClick={prevStep}>Back</Button>
-                    <Button variant="contained" sx={{ mt: 2.5 }} type='submit' onClick={NextStep} >Next</Button>
-                </Stack>
-            </Grid>
+      <Paper>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow style={{ backgroundColor: '#FAFAFB' }}>
+                <TableCell colSpan={5} align="center" style={{ border: '1px solid #ccc' }}>
+                  String Length, String Voltages as Function of Cell Temperatures
+                </TableCell>
+              </TableRow>
+              <TableRow style={{ border: '1px solid #ccc' }}>
+                <TableCell style={{ border: '1px solid #ccc', width: '12%' }}>String Length</TableCell>
+                <TableCell align="center" style={{ border: '1px solid #ccc' }}>
+                  Lowest({formikValues.weatherDetails.recordLowAmbientTemperature.Tcell})
+                </TableCell>
+                <TableCell align="center" style={{ border: '1px solid #ccc' }}>
+                  STC({formikValues.weatherDetails.stcCellTemperature.Tcell})
+                </TableCell>
+                <TableCell align="center" style={{ border: '1px solid #ccc' }}>
+                  Medium({formikValues.weatherDetails.mediumCellTemperature.Tcell})
+                </TableCell>
+                <TableCell align="center" style={{ border: '1px solid #ccc' }}>
+                  Maximum({formikValues.weatherDetails.maximumCellTemperature.Tcell})
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>{generateRows()}</TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+      <Grid xs={12} sx={{ mx: 2 }}>
+        <Stack direction="row" justifyContent="flext-end" gap={2}>
+          <Button sx={{ mt: 2.5 }} color="error" onClick={prevStep}>
+            Back
+          </Button>
+          <Button variant="contained" sx={{ mt: 2.5 }} type="submit" onClick={NextStep}>
+            Next
+          </Button>
+        </Stack>
+      </Grid>
     </Grid>
   );
 }

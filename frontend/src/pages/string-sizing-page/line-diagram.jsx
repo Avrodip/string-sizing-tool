@@ -71,7 +71,6 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
           } 
         }
 
-        // Additional drawing logic
         var verticalLinemoveTo = 25;
         var verticalLinelineTo = 75;
         var horizontalLinemoveTo;

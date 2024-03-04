@@ -44,6 +44,17 @@ class ProjectManager {
           logManager.generateAPILog(req, "", errorLog, 1);
         }
     }
+
+    async getParamterByID(req, res) {
+        try {
+            const result = await projectData.getParamterByID(req);
+            return result;
+          } catch (error) {
+            let errorLog = error.name + ": " + error.message;
+            logger.error(errorLog);
+            logManager.generateAPILog(req, "", errorLog, 1);
+          }
+    }
 }
 
 module.exports = { ProjectManager };

@@ -10,4 +10,5 @@ router.post("/getProjectList", projectController.getProjectList)
 router.post("/updateProject",projectController.updateProject)
 router.post("/deleteProject",projectController.deleteProject)
 router.post("/updateParameter",projectController.updateParameter);
+router.post("/getParamterByID",projectController.getParamterByID);
 module.exports = router;

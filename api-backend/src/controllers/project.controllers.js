@@ -56,6 +56,19 @@ class ProjectController {
             return apiResponse.expectationFailedResponse(res, error);
         }
     }
+    async getParamterByID(req, res) {
+        try {
+            const result = await projectManager.getParamterByID(req, res);
+
+            if (result.length > 0) {
+                return apiResponse.successResponseWithData(res, result.message, result);
+            } else {
+                return apiResponse.conflictRequest(res, result.message);
+            }
+        } catch (error) {
+            return apiResponse.expectationFailedResponse(res, error);
+        }
+    }
 }
 
 module.exports = { ProjectController };
