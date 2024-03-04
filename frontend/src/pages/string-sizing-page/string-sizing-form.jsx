@@ -21,7 +21,6 @@ import {
 import { useFormik } from 'formik';
 import axios from 'axios';
 import * as yup from 'yup';
-import { update } from 'lodash';
 const validationSchema = yup.object().shape({
   projectName: yup.string().required('This field is required'),
   projectCapacity: yup.number().required('This field is required'),
@@ -78,12 +77,12 @@ const validationSchema = yup.object().shape({
 });
 const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID,paramterID,setParamterID }) => {
   let totalCapacity;
-  const [formData, setFormData] = useState({
-    projectID: null,
-    projectName: '',
-    projectCapacity: '',
-    actionType: 1
-  });
+//   const [formData, setFormData] = useState({
+//     projectID: null,
+//     projectName: '',
+//     projectCapacity: '',
+//     actionType: 1
+//   });
   const formik = useFormik({
     initialValues: {
       projectName: '',
@@ -174,7 +173,13 @@ const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID
             
         }
         else{
-        const responseProject = await axios.post('http://localhost:4000/api/master/updateProject', formData);
+            const data={
+                projectID: null,
+                projectName: formik.values.projectName,
+                projectCapacity: formik.values.projectCapacity,
+                actionType: 1
+            }
+        const responseProject = await axios.post('http://localhost:4000/api/master/updateProject', data);
         console.log('Response from API:', responseProject.data.data[0].projectID);
         setProjectID(responseProject.data.data[0].projectID);
         const response = await fetch('http://localhost:4000/api/master/updateParameter', {
@@ -230,7 +235,7 @@ const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID
 const handleFormChange = (event) => {
     const { id, value } = event.target;
     const inputRegex = /^-?[0-9]*(\.[0-9]*)?$/;
-    if (id === 'moduleParamDet.solarModule' || id === 'inverterParamDet.inverter') {
+    if (id === 'moduleParamDet.solarModule' || id === 'inverterParamDet.inverter' || id === 'projectName') {
       formik.setFieldValue(id, value);
     } else {
       if (value === '' || inputRegex.test(value)) {
@@ -311,14 +316,14 @@ const handleFormChange = (event) => {
     return rows;
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (e.target.name == 'projectName') {
-      formik.setFieldValue(`projectName`, e.target.value);
-    } else {
-      formik.setFieldValue(`projectCapacity`, e.target.value);
-    }
-  };
+//   const handleChange = (e) => {
+//     setFormData({ ...formData, [e.target.name]: e.target.value });
+//     if (e.target.name == 'projectName') {
+//       formik.setFieldValue(`projectName`, e.target.value);
+//     } else {
+//       formik.setFieldValue(`projectCapacity`, e.target.value);
+//     }
+//   };
 
   console.log(formik.values);
   //   const handleSubmit = async (e) => {
@@ -486,7 +491,7 @@ const handleFormChange = (event) => {
                 label="Project Name"
                 variant="outlined"
                 value={formik.values.projectName}
-                onChange={handleChange}
+                onChange={handleFormChange}
                 error={formik.touched.projectName && Boolean(formik.errors.projectName)}
                 helperText={formik.touched.projectName && formik.errors.projectName}
               />
@@ -502,7 +507,7 @@ const handleFormChange = (event) => {
                 label="Project Capacity (kW)"
                 variant="outlined"
                 value={formik.values.projectCapacity}
-                onChange={handleChange}
+                onChange={handleFormChange}
                 error={formik.touched.projectCapacity && Boolean(formik.errors.projectCapacity)}
                 helperText={formik.touched.projectCapacity && formik.errors.projectCapacity}
                 // InputProps={{
