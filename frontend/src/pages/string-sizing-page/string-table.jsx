@@ -113,7 +113,7 @@ function StringTable({ formikValues, NextStep, prevStep }) {
   };
 
   return (
-    <Grid>
+    <Grid  container direction="column">
       <Paper>
         <TableContainer>
           <Table>
@@ -144,7 +144,7 @@ function StringTable({ formikValues, NextStep, prevStep }) {
         </TableContainer>
       </Paper>
       <Grid xs={12} sx={{ mx: 2 }}>
-        <Stack direction="row" justifyContent="flext-end" gap={2}>
+        <Stack direction="row" justifyContent="flext-end" gap={2} sx={{ mt: 2 }}>
           <Button sx={{ mt: 2.5 }} color="error" onClick={prevStep}>
             Back
           </Button>

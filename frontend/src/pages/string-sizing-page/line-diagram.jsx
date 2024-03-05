@@ -4,7 +4,7 @@ import Inverter from '../resources/Group 516.png';
 import distribution from '../resources/distribution-board 1.png';
 import battery from '../resources/battery 1.png';
 import tower from '../resources/electric-tower 1.png';
-
+import jsPDF from 'jspdf';
 import {Grid,Stack,Button} from '@mui/material';
 const LineDiagram = ({ formikValues ,prevStep}) => {
   const canvasRef = useRef(null);
@@ -20,6 +20,7 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
     };
 
     const drawDiagram = (ctx) => {
+        
       if (formikValues && formikValues.inverterParamDet && formikValues.inverterParamDet.inverters) {
         var startPossition = 75;
         var modulePointDistance = 50;
@@ -103,7 +104,7 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
               horizontalLineEnd = verticalLinelineTo;
             }
           }
-
+          
           if (formikValues.inverterParamDet.inverters[j].numberOfStrings > 1) {
             centerNumber = horizontalLineStart + (horizontalLineEnd - horizontalLineStart) / 2;
             horizontalLinemoveTo = centerNumber;
@@ -176,7 +177,6 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
         ctx.fillText("Aluminum Cable", startPossition + 510, horizintalCenterPoint + 30);
 
 
-
         ctx.drawImage(grid, startPossition + 590, horizintalCenterPoint - verticalLineDistance, 100, 100)
         ctx.beginPath();
         ctx.fillText('AC Distribution Box', startPossition + 600, horizintalCenterPoint - verticalLineDistance + 120);
@@ -233,16 +233,49 @@ const LineDiagram = ({ formikValues ,prevStep}) => {
     };
   }, [formikValues]);
 
-  return (
-    <Grid container>
-    <canvas ref={canvasRef}></canvas>
-    <Grid item xs={12} sx={{ mx: 2 }}>
-        <Stack direction="row" justifyContent="flex-end" gap={2}>
-            <Button sx={{ mt: 2.5 }} color='error' onClick={prevStep}>Back</Button>
-        </Stack>
+  const handleDownload = () => {
+    const canvas = canvasRef.current;
+  
+    // Get the dimensions of the canvas
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+  
+    // Create a new jsPDF instance
+    const pdf = new jsPDF('landscape', 'px', [canvasWidth, canvasHeight]);
+  
+    // Get the canvas content as an image
+    const imgData = canvas.toDataURL('image/png');
+  
+    // Calculate the position to center the image
+    const imgWidth = canvasWidth;
+    const imgHeight = canvasHeight;
+    const x = (pdf.internal.pageSize.width - imgWidth) / 2;
+    const y = (pdf.internal.pageSize.height - imgHeight) / 2;
+  
+    // Add the image to the PDF document at the center
+    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+  
+    // Save the PDF with a specific name
+    pdf.save('diagram.pdf');
+  };
+ return (
+  <Grid container>
+    <Grid item xs={12}>
+      <Grid container justifyContent="flex-end">
+        <Button sx={{ mt: 2.5, backgroundColor: 'blue', color: 'white' }} onClick={handleDownload}>Download</Button>
+      </Grid>
     </Grid>
-</Grid>
-  );
+    <Grid item xs={12}>
+      <canvas ref={canvasRef}></canvas>
+    </Grid>
+    <Grid item xs={12} sx={{ mx: 2 }}>
+      <Stack direction="row" justifyContent="flex-end" gap={2}>
+        <Button sx={{ mt: 2.5 }} color='error' onClick={prevStep}>Back</Button>
+      </Stack>
+    </Grid>
+  </Grid>
+);
+
 };
 
 export default LineDiagram;
