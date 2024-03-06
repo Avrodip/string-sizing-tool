@@ -10,6 +10,7 @@ const LineDiagram = ({ formikValues, prevStep }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
+    console.log("formik values",formikValues)
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 

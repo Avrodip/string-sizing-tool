@@ -77,12 +77,6 @@ const validationSchema = yup.object().shape({
 });
 const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID,paramterID,setParamterID }) => {
   let totalCapacity;
-//   const [formData, setFormData] = useState({
-//     projectID: null,
-//     projectName: '',
-//     projectCapacity: '',
-//     actionType: 1
-//   });
   const formik = useFormik({
     initialValues: {
       projectName: '',
@@ -217,32 +211,28 @@ const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID
       }
     }
   });
-
-//   const handleFormChange = (event) => {
-//     formik.setFieldValue(event.target.name, event.target.value);
-//   };
-// const handleFormChange = (event) => {
-//     console.log("event",event);
-//     const inputRegex = /^[0-9\b]+$/; // Regex to allow only numbers
-//     const inputValue = event.target.value;
-
-//     if (inputValue === '' || inputRegex.test(inputValue)) {
-//       formik.setFieldValue(event.target.name, inputValue);
-//     }
-//   };
-
-
 const handleFormChange = (event) => {
     const { id, value } = event.target;
     const inputRegex = /^-?[0-9]*(\.[0-9]*)?$/;
+    
     if (id === 'moduleParamDet.solarModule' || id === 'inverterParamDet.inverter' || id === 'projectName') {
       formik.setFieldValue(id, value);
+    } else if (id === 'inverterParamDet.numberOfInverters') {
+        formik.setFieldValue(id, value);
+      const numberOfInverters = parseInt(value) || 0;
+      const currentInverters = formik.values.inverterParamDet.inverters || [];
+      const newInverters = numberOfInverters > currentInverters.length
+        ? currentInverters.concat(new Array(numberOfInverters - currentInverters.length).fill({ numberOfStrings: '', numberOfModules: '' }))
+        : currentInverters.slice(0, numberOfInverters);
+        
+      formik.setFieldValue('inverterParamDet.inverters', newInverters);
     } else {
       if (value === '' || inputRegex.test(value)) {
         formik.setFieldValue(id, value);
       }
     }
   };
+  
   onFormikChange(formik.values);
   const generateRows = (numberOfRows) => {
     let totalNumberOfStrings = 0;
@@ -315,31 +305,8 @@ const handleFormChange = (event) => {
 
     return rows;
   };
-
-//   const handleChange = (e) => {
-//     setFormData({ ...formData, [e.target.name]: e.target.value });
-//     if (e.target.name == 'projectName') {
-//       formik.setFieldValue(`projectName`, e.target.value);
-//     } else {
-//       formik.setFieldValue(`projectCapacity`, e.target.value);
-//     }
-//   };
-
   console.log(formik.values);
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-  //     try {
-  //       // Send the form data to the API endpoint using Axios
-  //       console.log("formData",formData);
-  //       const response = await axios.post('http://localhost:4000/api/master/updateProject', formData);
-  //       console.log('Response from API:', response.data.data[0].projectID);
-  //       setprojectID(response.data.data[0].projectID);
 
-  //     } catch (error) {
-  //       console.error('Error:', error);
-  //       // Optionally, handle error response here
-  //     }
-  //   };
   useEffect(() => {
     const fetchData = async () => {
         const body={
@@ -360,22 +327,10 @@ const handleFormChange = (event) => {
             });
             } else {
                 if (response.message.length > 0) {
-                    // openSnackbar({
-                    //     open: true, message: response.message, variant: 'alert',
-                    //     alert: { color: 'error', }
-                    // });
                 } else {
-                    // openSnackbar({
-                    //     open: true, message: "Something went wrong", variant: 'alert',
-                    //     alert: { color: 'error', }
-                    // });
                 }
             }
         } catch (error) {
-            // openSnackbar({
-            //     open: true, message: error, variant: 'alert',
-            //     alert: { color: 'error', }
-            // });
         }
     };
     if (projectID) {
@@ -510,9 +465,6 @@ const handleFormChange = (event) => {
                 onChange={handleFormChange}
                 error={formik.touched.projectCapacity && Boolean(formik.errors.projectCapacity)}
                 helperText={formik.touched.projectCapacity && formik.errors.projectCapacity}
-                // InputProps={{
-                //   endAdornment: <InputAdornment position="end">kW</InputAdornment>
-                // }}
               />
             </Box>
           </Grid>
@@ -1084,11 +1036,11 @@ const handleFormChange = (event) => {
                       <TableCell align="center">Capacity</TableCell>
                     </TableRow>
                   </TableHead>
-                  {formik.values.inverterParamDet.numberOfInverters &&
-                    formik.values.inverterParamDet.numberOfInverters !== '' &&
-                    formik.values.inverterParamDet.numberOfInverters !== 0 && (
-                      <TableBody>{generateRows(formik.values.inverterParamDet.numberOfInverters)}</TableBody>
-                    )}
+                    {formik.values.inverterParamDet.numberOfInverters &&
+                        formik.values.inverterParamDet.numberOfInverters !== '' &&
+                        formik.values.inverterParamDet.numberOfInverters !== 0 && (
+                        <TableBody>{generateRows(formik.values.inverterParamDet.numberOfInverters)}</TableBody>
+                        )}
                   {/* {console.log(formik.values.inverterParamDet.numberOfInverters)} */}
                   {!formik.values.inverterParamDet.numberOfInverters ||
                     (formik.values.inverterParamDet.numberOfInverters == '' && (
