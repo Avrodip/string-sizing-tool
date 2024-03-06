@@ -30,6 +30,7 @@ const LineDiagram = ({ formikValues, prevStep }) => {
         var moveToLine = 25;
         var lineTo = 25;
         var stringIndex = 0;
+        
         ctx.font = '10px Poppins';
         // const UnionImg = new Image();
         // UnionImg.src = Union;
@@ -285,6 +286,7 @@ const LineDiagram = ({ formikValues, prevStep }) => {
           <Button sx={{ mt: 2.5, backgroundColor: 'blue', color: 'white' }} onClick={handleDownload}>
             Download
           </Button>
+          <br/>
         </Grid>
       </Grid>
       <Grid item xs={12}>

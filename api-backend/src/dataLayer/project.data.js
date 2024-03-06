@@ -60,6 +60,7 @@ class ProjectData{
             replacements: { projectID, projectName, projectCapacity, actionType},
             type: db.QueryTypes.RAW,
           });
+          
           return result;
         } catch (error) {
           console.log(error);
@@ -93,6 +94,82 @@ class ProjectData{
             return result;
         } catch (error) {
             console.error("Error executing getProjectList:", error);
+            throw error;
+        }
+    }
+
+    async getModuleMakeList(req) {
+        try {
+            console.log("in datalayer");
+            const userID=req.body.userID;
+            const result = await db.query('CALL usp_getModuleList(:userID)', {
+                replacements: { userID },
+                type: db.QueryTypes.SELECT,
+            });
+            console.log("result",result)
+            return result;
+        } catch (error) {
+            throw error;
+        }
+      }
+
+      async getInverterMakeList(userID) {
+        try {
+            const result = await db.query('CALL usp_getInverterList(:userID)', {
+                replacements: { userID },
+                type: db.QueryTypes.SELECT,
+            });
+            return result;
+        } catch (error) {
+            throw error;
+        }
+      }
+
+      async getModelListByModuleID(manufacturerID) {
+        try {
+            const result = await db.query('CALL usp_getModelListByModuleID(:manufacturerID)', {
+                replacements: { manufacturerID },
+                type: db.QueryTypes.RAW,
+            });
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getModelListByInverterID(manufacturerID) {
+        try {
+            const result = await db.query('CALL usp_getModelListByInverterID(:manufacturerID)', {
+                replacements: { manufacturerID },
+                type: db.QueryTypes.RAW,
+            });
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getModelDataByModuleID(moduleID) {
+        try {
+            const result = await db.query('CALL usp_getModelDataByModuleID(:moduleID)', {
+                replacements: { moduleID },
+                type: db.QueryTypes.RAW,
+            });
+            console.log(result)
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getModelDataByInverterID(inverterID) {
+        try {
+            const result = await db.query('CALL usp_getModelDataByInverterID(:inverterID)', {
+                replacements: { inverterID },
+                type: db.QueryTypes.RAW,
+            });
+            return result;
+        } catch (error) {
             throw error;
         }
     }

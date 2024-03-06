@@ -614,7 +614,7 @@ const handleFormChange = (event) => {
               sx={{ mb: 0, backgroundColor: '#343a40', color: 'white', padding: '6px', textAlign: 'center' }}
             >
               Inverter Parameters
-            </Typography>
+            </Typography> 
             <Box sx={{ p: 2 }}>
               <TextField
                 required
