@@ -16,7 +16,11 @@ import {
   Table,
   TableRow,
   TableCell,
-  TableBody
+  TableBody,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import { useFormik } from 'formik';
 import axios from 'axios';
@@ -25,7 +29,8 @@ const validationSchema = yup.object().shape({
   projectName: yup.string().required('This field is required'),
   projectCapacity: yup.number().required('This field is required'),
   moduleParamDet: yup.object().shape({
-    solarModule: yup.string().required('This field is required'),
+    solarModuleManufacturer: yup.number().required('This field is required'),
+    solarModuleName: yup.string().required('This field is required'),
     shortCircuitCurrent: yup.number().required('This field is required'),
     openCircuitVoltage: yup.number().required('This field is required'),
     ratedPower: yup.number().required('This field is required'),
@@ -34,7 +39,8 @@ const validationSchema = yup.object().shape({
     tempCoefficientPmpp: yup.number().required('This field is required')
   }),
   inverterParamDet: yup.object().shape({
-    inverter: yup.string().required('This field is required'),
+    inverterManufacturer: yup.number().required('This field is required'),
+    inverterName:yup.string().required('This field is required'),
     inverters: yup.array().of(
       yup.object().shape({
         numberOfStrings: yup.number().required('This field is required'),
@@ -75,14 +81,15 @@ const validationSchema = yup.object().shape({
     })
   })
 });
-const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID,paramterID,setParamterID }) => {
+const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProjectID, paramterID, setParamterID }) => {
   let totalCapacity;
   const formik = useFormik({
     initialValues: {
       projectName: '',
       projectCapacity: '',
       moduleParamDet: {
-        solarModule: '',
+        solarModuleManufacturer: '',
+        solarModuleName: '',
         shortCircuitCurrent: '',
         openCircuitVoltage: '',
         ratedPower: '',
@@ -91,7 +98,8 @@ const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID
         tempCoefficientPmpp: ''
       },
       inverterParamDet: {
-        inverter: '',
+        inverterManufacturer: '',
+        inverterName: '',
         inverters: [{ numberOfStrings: '', numberOfModules: '' }],
         acNominalPower: '',
         numberOfInverters: '',
@@ -134,76 +142,72 @@ const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID
         if (formik.values.projectCapacity < totalCapacity) {
           throw new Error('Total Capacity should be less than Project capacity');
         }
-        if(projectID){
-            const data={
-                projectID: projectID,
-                projectName: formik.values.projectName,
-                projectCapacity: formik.values.projectCapacity,
-                actionType: 2
-            }
-            const responseProject = await axios.post('http://localhost:4000/api/master/updateProject', data);
-            const response = await fetch('http://localhost:4000/api/master/updateParameter', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  parameterID: paramterID,
-                  projectID: projectID,
-                  moduleParamDet: values.moduleParamDet,
-                  inverterParamDet: values.inverterParamDet,
-                  weatherParamDet: values.weatherDetails,
-                  stringSizingDet: values.inverterParamDet.inverters,
-                  actionType: 2
-                })
-              });
-              if (response.ok) {
-                NextStep();
-                
-              }
-              else{
-                throw new Error('Failed to submit form data');
-              }
-            
-        }
-        else{
-            const data={
-                projectID: null,
-                projectName: formik.values.projectName,
-                projectCapacity: formik.values.projectCapacity,
-                actionType: 1
-            }
-        const responseProject = await axios.post('http://localhost:4000/api/master/updateProject', data);
-        console.log('Response from API:', responseProject.data.data[0].projectID);
-        setProjectID(responseProject.data.data[0].projectID);
-        const response = await fetch('http://localhost:4000/api/master/updateParameter', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            parameterID: null,
-            projectID: responseProject.data.data[0].projectID,
-            moduleParamDet: values.moduleParamDet,
-            inverterParamDet: values.inverterParamDet,
-            weatherParamDet: values.weatherDetails,
-            stringSizingDet: values.inverterParamDet.inverters,
+        if (projectID) {
+          const data = {
+            projectID: projectID,
+            projectName: formik.values.projectName,
+            projectCapacity: formik.values.projectCapacity,
+            actionType: 2
+          };
+          const responseProject = await axios.post('http://localhost:4000/api/master/updateProject', data);
+          const response = await fetch('http://localhost:4000/api/master/updateParameter', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              parameterID: paramterID,
+              projectID: projectID,
+              moduleParamDet: values.moduleParamDet,
+              inverterParamDet: values.inverterParamDet,
+              weatherParamDet: values.weatherDetails,
+              stringSizingDet: values.inverterParamDet.inverters,
+              actionType: 2
+            })
+          });
+          if (response.ok) {
+            NextStep();
+          } else {
+            throw new Error('Failed to submit form data');
+          }
+        } else {
+          const data = {
+            projectID: null,
+            projectName: formik.values.projectName,
+            projectCapacity: formik.values.projectCapacity,
             actionType: 1
-          })
-        });
-       
-        if (!response.ok) {
-          throw new Error('Failed to submit form data');
-        }
-        const responseData = await response.json();
-        setParamterID(responseData.data[0].parameterID);
+          };
+          const responseProject = await axios.post('http://localhost:4000/api/master/updateProject', data);
+          console.log('Response from API:', responseProject.data.data[0].projectID);
+          setProjectID(responseProject.data.data[0].projectID);
+          const response = await fetch('http://localhost:4000/api/master/updateParameter', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              parameterID: null,
+              projectID: responseProject.data.data[0].projectID,
+              moduleParamDet: values.moduleParamDet,
+              inverterParamDet: values.inverterParamDet,
+              weatherParamDet: values.weatherDetails,
+              stringSizingDet: values.inverterParamDet.inverters,
+              actionType: 1
+            })
+          });
 
-        // setParamterID(response.parameterID);
-        toast.success('Form data submitted successfully', {
-          onClose: () => NextStep(),
-          autoClose: 1000
-        });
-    }
+          if (!response.ok) {
+            throw new Error('Failed to submit form data');
+          }
+          const responseData = await response.json();
+          setParamterID(responseData.data[0].parameterID);
+
+          // setParamterID(response.parameterID);
+          toast.success('Form data submitted successfully', {
+            onClose: () => NextStep(),
+            autoClose: 1000
+          });
+        }
       } catch (error) {
         toast.error(error.message, {
           autoClose: 2000
@@ -211,20 +215,132 @@ const ModuleParametersTable = ({ NextStep, onFormikChange,projectID,setProjectID
       }
     }
   });
-const handleFormChange = (event) => {
+  const [inverterManufacturers, setInverterManufacturers] = useState([]);
+  const [inverterName, setInverterName] = useState([]);
+  const [solarModuleManufacturers, setSolarModuleManufacturers] = useState([]);
+  const [solarModuleName, setSolarModuleName] = useState([]);
+  const fetchInverterManufacturer = async () => {
+    try {
+      const body = { userID: 1 };
+      const response = await fetch('http://localhost:4000/api/master/getInverterMakeList', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      setInverterManufacturers(data.data); // Assuming data is an array
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  const fetchInverterByID = async () => {
+    try {
+      const body = { manufacturerID: formik.values.inverterParamDet.inverterManufacturer };
+      const response = await fetch('http://localhost:4000/api/master/getModelListByInverterID', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      setInverterName(data.data); // Assuming data is an array
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  const fetchsolarModuleManufacturer = async () => {
+    try {
+      const body = { userID: 1 };
+      const response = await fetch('http://localhost:4000/api/master/getModuleMakeList', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      setSolarModuleManufacturers(data.data); // Assuming data is an array
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  const fetchSolarByID = async () => {
+    try {
+      const body = { manufacturerID: formik.values.moduleParamDet.solarModuleManufacturer };
+      const response = await fetch('http://localhost:4000/api/master/getModelListByModuleID', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      setSolarModuleName(data.data); // Assuming data is an array
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  useEffect(() => {
+    fetchInverterManufacturer();
+    fetchsolarModuleManufacturer();
+  }, []);
+
+  useEffect(() => {
+    if(formik.values.inverterParamDet.inverterManufacturer){
+    fetchInverterByID();
+    }
+  }, [formik.values.inverterParamDet.inverterManufacturer]);
+
+  useEffect(() => {
+    if(formik.values.moduleParamDet.solarModuleManufacturer){
+    fetchSolarByID();
+    }
+  }, [formik.values.moduleParamDet.solarModuleManufacturer]);
+
+
+
+  const handleFormChange = (event) => {
     const { id, value } = event.target;
+    console.log('id', id);
+    console.log('value', value);
     const inputRegex = /^-?[0-9]*(\.[0-9]*)?$/;
-    
-    if (id === 'moduleParamDet.solarModule' || id === 'inverterParamDet.inverter' || id === 'projectName') {
+
+    if (id === 'moduleParamDet.solarModuleManufacturer' || id === 'inverterParamDet.inverterManufacturer' || id === 'projectName') {
       formik.setFieldValue(id, value);
     } else if (id === 'inverterParamDet.numberOfInverters') {
-        formik.setFieldValue(id, value);
+      formik.setFieldValue(id, value);
       const numberOfInverters = parseInt(value) || 0;
       const currentInverters = formik.values.inverterParamDet.inverters || [];
-      const newInverters = numberOfInverters > currentInverters.length
-        ? currentInverters.concat(new Array(numberOfInverters - currentInverters.length).fill({ numberOfStrings: '', numberOfModules: '' }))
-        : currentInverters.slice(0, numberOfInverters);
-        
+      const newInverters =
+        numberOfInverters > currentInverters.length
+          ? currentInverters.concat(
+              new Array(numberOfInverters - currentInverters.length).fill({ numberOfStrings: '', numberOfModules: '' })
+            )
+          : currentInverters.slice(0, numberOfInverters);
+
       formik.setFieldValue('inverterParamDet.inverters', newInverters);
     } else {
       if (value === '' || inputRegex.test(value)) {
@@ -232,7 +348,7 @@ const handleFormChange = (event) => {
       }
     }
   };
-  
+
   onFormikChange(formik.values);
   const generateRows = (numberOfRows) => {
     let totalNumberOfStrings = 0;
@@ -305,40 +421,38 @@ const handleFormChange = (event) => {
 
     return rows;
   };
-  console.log(formik.values);
+  console.log(formik);
 
   useEffect(() => {
     const fetchData = async () => {
-        const body={
-            projectID:projectID
+      const body = {
+        projectID: projectID
+      };
+      try {
+        const response = await axios.post('http://localhost:4000/api/master/getParamterByID', body);
+        if (response) {
+          const responseData = response.data.data[0][0];
+          const { projectName, projectCapacity, moduleParamDet, inverterParamDet, weatherParamDet, stringSizingDet } = responseData;
+          formik.setValues({
+            projectName: projectName,
+            projectCapacity: projectCapacity,
+            moduleParamDet: moduleParamDet,
+            inverterParamDet: inverterParamDet,
+            weatherDetails: weatherParamDet,
+            stringSizingDet: stringSizingDet
+          });
+        } else {
+          if (response.message.length > 0) {
+          } else {
+          }
         }
-        try {
-            const response =await axios.post('http://localhost:4000/api/master/getParamterByID', body);
-            if (response) {
-                const responseData = response.data.data[0][0];
-            const { projectName, projectCapacity, moduleParamDet, inverterParamDet, weatherParamDet, stringSizingDet } = responseData;
-            formik.setValues({
-                projectName: projectName,
-                projectCapacity: projectCapacity,
-                moduleParamDet: moduleParamDet,
-                inverterParamDet: inverterParamDet,
-                weatherDetails: weatherParamDet,
-                stringSizingDet: stringSizingDet
-            });
-            } else {
-                if (response.message.length > 0) {
-                } else {
-                }
-            }
-        } catch (error) {
-        }
+      } catch (error) {}
     };
     if (projectID) {
-        fetchData();
+      fetchData();
     }
-}, [projectID]);
+  }, [projectID]);
   useEffect(() => {
-   
     formik.setFieldValue(
       'weatherDetails.recordLowAmbientTemperature.Voc',
       (
@@ -481,19 +595,66 @@ const handleFormChange = (event) => {
               Module Parameters
             </Typography>
             <Box sx={{ p: 2 }}>
-              <TextField
-                required
-                id="moduleParamDet.solarModule"
-                name="moduleParamDet.solarModule"
-                label="Solar Module"
-                variant="outlined"
-                value={formik.values.moduleParamDet.solarModule}
-                onChange={handleFormChange}
-                onBlur={formik.handleBlur}
+              <FormControl
                 fullWidth
-                error={formik.touched.moduleParamDet?.solarModule && Boolean(formik.errors.moduleParamDet?.solarModule)}
-                helperText={formik.touched.moduleParamDet?.solarModule && formik.errors.moduleParamDet?.solarModule}
-              />
+                variant="outlined"
+                error={
+                  formik.touched.moduleParamDet?.solarModuleManufacturer && Boolean(formik.errors.moduleParamDet?.solarModuleManufacturer)
+                }
+              >
+                <InputLabel id="solar-manufacturer-label">Solar Module Manufacturer</InputLabel>
+                <Select
+                  labelId="solar-manufacturer-label"
+                  id="moduleParamDet.solarModuleManufacturer"
+                  name="moduleParamDet.solarModuleManufacturer"
+                  value={formik.values.moduleParamDet.solarModuleManufacturer}
+                  onChange={(event) => {
+                    formik.handleChange(event);
+                  }}
+                  onBlur={formik.handleBlur}
+                  fullWidth
+                >
+                  {solarModuleManufacturers.map((manufacturer) => (
+                    <MenuItem key={manufacturer.manufacturerID} value={manufacturer.manufacturerID}>
+                      {manufacturer.manufacturer}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {formik.touched.moduleParamDet?.solarModuleManufacturer && formik.errors.moduleParamDet?.solarModuleManufacturer && (
+                  <div>{formik.errors.moduleParamDet?.solarModuleManufacturer}</div>
+                )}
+              </FormControl>
+            </Box>
+            <Box sx={{ p: 2 }}>
+              <FormControl
+                fullWidth
+                variant="outlined"
+                error={
+                  formik.touched.moduleParamDet?.solarModuleName && Boolean(formik.errors.moduleParamDet?.solarModuleName)
+                }
+              >
+                <InputLabel id="inverter-manufacturer-label">Solar Module Manufacturer</InputLabel>
+                <Select
+                  labelId="solar-manufacturer-label"
+                  id="moduleParamDet.solarModuleName"
+                  name="moduleParamDet.solarModuleName"
+                  value={formik.values.moduleParamDet.solarModuleName}
+                  onChange={(event) => {
+                    formik.handleChange(event);
+                  }}
+                  onBlur={formik.handleBlur}
+                  fullWidth
+                >
+                  {solarModuleName.map((manufacturer) => (
+                    <MenuItem key={manufacturer.pvModuleID} value={manufacturer.pvModuleID}>
+                      {manufacturer.model}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {formik.touched.inverterParamDet?.inverterManufacturer && formik.errors.inverterParamDet?.inverterManufacturer && (
+                  <div>{formik.errors.inverterParamDet?.inverterManufacturer}</div>
+                )}
+              </FormControl>
             </Box>
             <Box sx={{ p: 2 }}>
               <TextField
@@ -526,7 +687,6 @@ const handleFormChange = (event) => {
                 fullWidth
                 InputProps={{
                   endAdornment: <InputAdornment position="end">V</InputAdornment>
-                  
                 }}
                 error={formik.touched.moduleParamDet?.openCircuitVoltage && Boolean(formik.errors.moduleParamDet?.openCircuitVoltage)}
                 helperText={formik.touched.moduleParamDet?.openCircuitVoltage && formik.errors.moduleParamDet?.openCircuitVoltage}
@@ -614,22 +774,69 @@ const handleFormChange = (event) => {
               sx={{ mb: 0, backgroundColor: '#343a40', color: 'white', padding: '6px', textAlign: 'center' }}
             >
               Inverter Parameters
-            </Typography> 
+            </Typography>
+
             <Box sx={{ p: 2 }}>
-              <TextField
-                required
-                id="inverterParamDet.inverter"
-                name="inverterParamDet.inverter"
-                label="Inverter"
-                variant="outlined"
-                value={formik.values.inverterParamDet.inverter}
-                onChange={handleFormChange}
-                onBlur={formik.handleBlur}
+              <FormControl
                 fullWidth
-                error={formik.touched.inverterParamDet?.inverter && Boolean(formik.errors.inverterParamDet?.inverter)}
-                helperText={formik.touched.inverterParamDet?.inverter && formik.errors.inverterParamDet?.inverter}
-              />
+                variant="outlined"
+                error={
+                  formik.touched.inverterParamDet?.inverterManufacturer && Boolean(formik.errors.inverterParamDet?.inverterManufacturer)
+                }
+              >
+                <InputLabel id="inverter-manufacturer-label">Inverter Manufacturer</InputLabel>
+                <Select
+                  labelId="inverter-manufacturer-label"
+                  id="inverterParamDet.inverterManufacturer"
+                  name="inverterParamDet.inverterManufacturer"
+                  value={formik.values.inverterParamDet.inverterManufacturer}
+                  onChange={(event) => {
+                    formik.handleChange(event);
+                  }}
+                  onBlur={formik.handleBlur}
+                  fullWidth
+                >
+                  {inverterManufacturers.map((manufacturer) => (
+                    <MenuItem key={manufacturer.manufacturerID} value={manufacturer.manufacturerID}>
+                      {manufacturer.manufacturer}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {formik.touched.inverterParamDet?.inverterManufacturer && formik.errors.inverterParamDet?.inverterManufacturer && (
+                  <div>{formik.errors.inverterParamDet?.inverterManufacturer}</div>
+                )}
+              </FormControl>
             </Box>
+            <Box sx={{ p: 2 }}>
+              <FormControl
+                fullWidth
+                variant="outlined"
+                error={
+                  formik.touched.inverterParamDet?.inverterManufacturer && Boolean(formik.errors.inverterParamDet?.inverterManufacturer)
+                }
+              >
+                <InputLabel id="inverter-manufacturer-label">Inverter Name</InputLabel>
+                <Select
+                  labelId="inverter-manufacturer-label"
+                  id="inverterParamDet.inverterName"
+                  name="inverterParamDet.inverterName"
+                  value={formik.values.inverterParamDet.inverterName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  fullWidth
+                >
+                  {inverterName.map((manufacturer) => (
+                    <MenuItem key={manufacturer.pvInverterID} value={manufacturer.pvInverterID}>
+                      {manufacturer.model}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {formik.touched.inverterParamDet?.inverterName && formik.errors.inverterParamDet?.inverterName && (
+                  <div>{formik.errors.inverterParamDet?.inverterName}</div>
+                )}
+              </FormControl>
+            </Box>
+
             <Box sx={{ p: 2 }}>
               <TextField
                 required
@@ -1036,11 +1243,11 @@ const handleFormChange = (event) => {
                       <TableCell align="center">Capacity</TableCell>
                     </TableRow>
                   </TableHead>
-                    {formik.values.inverterParamDet.numberOfInverters &&
-                        formik.values.inverterParamDet.numberOfInverters !== '' &&
-                        formik.values.inverterParamDet.numberOfInverters !== 0 && (
-                        <TableBody>{generateRows(formik.values.inverterParamDet.numberOfInverters)}</TableBody>
-                        )}
+                  {formik.values.inverterParamDet.numberOfInverters &&
+                    formik.values.inverterParamDet.numberOfInverters !== '' &&
+                    formik.values.inverterParamDet.numberOfInverters !== 0 && (
+                      <TableBody>{generateRows(formik.values.inverterParamDet.numberOfInverters)}</TableBody>
+                    )}
                   {/* {console.log(formik.values.inverterParamDet.numberOfInverters)} */}
                   {!formik.values.inverterParamDet.numberOfInverters ||
                     (formik.values.inverterParamDet.numberOfInverters == '' && (

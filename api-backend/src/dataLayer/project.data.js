@@ -99,8 +99,9 @@ class ProjectData{
     }
 
     async getModuleMakeList(req) {
+        console.log("in datalayer",req.body);
         try {
-            console.log("in datalayer");
+           
             const userID=req.body.userID;
             const result = await db.query('CALL usp_getModuleList(:userID)', {
                 replacements: { userID },
@@ -113,8 +114,9 @@ class ProjectData{
         }
       }
 
-      async getInverterMakeList(userID) {
+      async getInverterMakeList(req) {
         try {
+            const userID=req.body.userID;
             const result = await db.query('CALL usp_getInverterList(:userID)', {
                 replacements: { userID },
                 type: db.QueryTypes.SELECT,

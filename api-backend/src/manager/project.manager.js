@@ -53,7 +53,7 @@ class ProjectManager {
 
     async getModuleMakeList(req) {
         try {
-          const result = await projectData.getModuleMakeList(req.user.userID);
+          const result = await projectData.getModuleMakeList(req);
           return result;
         } catch (error) {
             let errorLog = error.name + ': ' + error.message
@@ -63,7 +63,7 @@ class ProjectManager {
     
       async getInverterMakeList(req) {
         try {
-          const result = await projectData.getInverterMakeList(req.user.userID);
+          const result = await projectData.getInverterMakeList(req);
           return result;
         } catch (error) {
             let errorLog = error.name + ': ' + error.message

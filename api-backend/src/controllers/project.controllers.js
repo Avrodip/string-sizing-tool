@@ -90,7 +90,7 @@ class ProjectController {
     async getInverterMakeList(req, res, next) {
         try {
             const result = await projectManager.getInverterMakeList(req);
-            if (result.length > 0) {
+            if (result && result.length > 0) {
                 // Convert the array of objects to a simple array
                 const dataArray = Object.values(result[0]);
                 return apiResponse.successResponseWithData(res, "Inverter data List.", dataArray);
@@ -106,7 +106,7 @@ class ProjectController {
     async getModelListByModuleID(req, res, next) {
         try {
           const result = await projectManager.getModelListByModuleID(req);
-          if (result.length>0) {
+          if (result && result.length>0) {
             return apiResponse.successResponseWithData(res, "Module Details.", result);
           } else {
             return apiResponse.notFoundResponse(res, "Module details are not found.");
@@ -120,7 +120,7 @@ class ProjectController {
       async getModelListByInverterID(req, res, next) {
         try {
           const result = await projectManager.getModelListByInverterID(req);
-          if (result.length>0) {
+          if (result && result.length>0) {
             return apiResponse.successResponseWithData(res, "Inverter Details.", result);
           } else {
             return apiResponse.notFoundResponse(res, "Inverter details are not found.");
@@ -134,7 +134,7 @@ class ProjectController {
       async getModelDataByModuleID(req, res, next) {
         try {
           const result = await projectManager.getModelDataByModuleID(req);
-          if (result.length>0) {
+          if (result && result.length>0) {
             return apiResponse.successResponseWithData(res, "Module Details.", result);
           } else {
             return apiResponse.notFoundResponse(res, "Module details are not found.");
@@ -148,7 +148,7 @@ class ProjectController {
       async getModelDataByInverterID(req, res, next) {
         try {
           const result = await projectManager.getModelDataByInverterID(req);
-          if (result.length>0) {
+          if (result && result.length>0) {
             return apiResponse.successResponseWithData(res, "Inverter Details.", result);
           } else {
             return apiResponse.notFoundResponse(res, "Inverter details are not found.");
