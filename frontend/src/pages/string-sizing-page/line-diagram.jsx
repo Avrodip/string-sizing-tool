@@ -142,7 +142,7 @@ const LineDiagram = ({ formikValues, prevStep }) => {
                     imgDistance = centerNumber - imgDistance;
                     ctx.drawImage(imgInverter, startPossition + 300, imgDistance, 80, 80);
                     ctx.beginPath();
-                    var inverterName = formikValues.inverterParamDet.inverter;
+                    var inverterName = formikValues.inverterParamDet.inverterID;
                     ctx.fillText(
                       'Solar Inverter (' + inverterName + ' - (' + formikValues.inverterParamDet.acNominalPower + ' kW))',
                       startPossition + 260,
@@ -254,31 +254,41 @@ const LineDiagram = ({ formikValues, prevStep }) => {
     };
   }, [formikValues]);
 
-  const handleDownload = () => {
+const handleDownload = () => {
     const canvas = canvasRef.current;
 
     // Get the dimensions of the canvas
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
-
+    
     // Create a new jsPDF instance
     const pdf = new jsPDF('landscape', 'px', [canvasWidth, canvasHeight]);
 
     // Get the canvas content as an image
     const imgData = canvas.toDataURL('image/png');
 
-    // Calculate the position to center the image
-    const imgWidth = canvasWidth;
-    const imgHeight = canvasHeight;
-    const x = (pdf.internal.pageSize.width - imgWidth) / 2;
-    const y = (pdf.internal.pageSize.height - imgHeight) / 2;
+    // Calculate the position to center the image with padding
+    const paddingX = 50; // Adjust as needed
+    const paddingY = 50; // Adjust as needed
+    const imgWidth = canvasWidth - (paddingX * 2);
+    const imgHeight = canvasHeight - (paddingY * 2);
+    const x = paddingX + (pdf.internal.pageSize.width - imgWidth) / 2;
+    const y = paddingY + (pdf.internal.pageSize.height - imgHeight) / 2;
 
-    // Add the image to the PDF document at the center
+    // Add the image to the PDF document at the center with padding
     pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+
+    // Add a text string sizing tool at the top of the PDF with padding
+    const toolText = "String Sizing Tool";
+    const toolTextWidth = pdf.getStringUnitWidth(toolText) * pdf.internal.getFontSize();
+    const toolTextX = paddingX + (pdf.internal.pageSize.width - toolTextWidth) / 2;
+    const toolTextY = paddingY + 20; // Adjust Y position as needed
+    pdf.text(toolTextX, toolTextY, toolText);
 
     // Save the PDF with a specific name
     pdf.save('diagram.pdf');
-  };
+};
+
   return (
     <Grid container>
       <Grid item xs={12}>

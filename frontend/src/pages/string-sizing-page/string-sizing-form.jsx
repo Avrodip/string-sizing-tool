@@ -29,8 +29,8 @@ const validationSchema = yup.object().shape({
   projectName: yup.string().required('This field is required'),
   projectCapacity: yup.number().required('This field is required'),
   moduleParamDet: yup.object().shape({
-    solarModuleManufacturer: yup.number().required('This field is required'),
-    solarModuleName: yup.string().required('This field is required'),
+    solarModuleManufacturerID: yup.number().required('This field is required'),
+    solarModuleNameID: yup.string().required('This field is required'),
     shortCircuitCurrent: yup.number().required('This field is required'),
     openCircuitVoltage: yup.number().required('This field is required'),
     ratedPower: yup.number().required('This field is required'),
@@ -39,8 +39,8 @@ const validationSchema = yup.object().shape({
     tempCoefficientPmpp: yup.number().required('This field is required')
   }),
   inverterParamDet: yup.object().shape({
-    inverterManufacturer: yup.number().required('This field is required'),
-    inverterName:yup.string().required('This field is required'),
+    inverterManufacturerID: yup.number().required('This field is required'),
+    inverterID:yup.string().required('This field is required'),
     inverters: yup.array().of(
       yup.object().shape({
         numberOfStrings: yup.number().required('This field is required'),
@@ -88,8 +88,8 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
       projectName: '',
       projectCapacity: '',
       moduleParamDet: {
-        solarModuleManufacturer: '',
-        solarModuleName: '',
+        solarModuleManufacturerID: '',
+        solarModuleNameID: '',
         shortCircuitCurrent: '',
         openCircuitVoltage: '',
         ratedPower: '',
@@ -98,8 +98,8 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
         tempCoefficientPmpp: ''
       },
       inverterParamDet: {
-        inverterManufacturer: '',
-        inverterName: '',
+        inverterManufacturerID: '',
+        inverterID: '',
         inverters: [{ numberOfStrings: '', numberOfModules: '' }],
         acNominalPower: '',
         numberOfInverters: '',
@@ -216,9 +216,9 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
     }
   });
   const [inverterManufacturers, setInverterManufacturers] = useState([]);
-  const [inverterName, setInverterName] = useState([]);
+  const [inverterID, setInverterName] = useState([]);
   const [solarModuleManufacturers, setSolarModuleManufacturers] = useState([]);
-  const [solarModuleName, setSolarModuleName] = useState([]);
+  const [solarModuleNameID, setSolarModuleName] = useState([]);
   const fetchInverterManufacturer = async () => {
     try {
       const body = { userID: 1 };
@@ -242,7 +242,7 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
   };
   const fetchInverterByID = async () => {
     try {
-      const body = { manufacturerID: formik.values.inverterParamDet.inverterManufacturer };
+      const body = { manufacturerID: formik.values.inverterParamDet.inverterManufacturerID };
       const response = await fetch('http://localhost:4000/api/master/getModelListByInverterID', {
         method: 'POST',
         headers: {
@@ -284,7 +284,7 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
   };
   const fetchSolarByID = async () => {
     try {
-      const body = { manufacturerID: formik.values.moduleParamDet.solarModuleManufacturer };
+      const body = { manufacturerID: formik.values.moduleParamDet.solarModuleManufacturerID };
       const response = await fetch('http://localhost:4000/api/master/getModelListByModuleID', {
         method: 'POST',
         headers: {
@@ -309,16 +309,16 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
   }, []);
 
   useEffect(() => {
-    if(formik.values.inverterParamDet.inverterManufacturer){
+    if(formik.values.inverterParamDet.inverterManufacturerID){
     fetchInverterByID();
     }
-  }, [formik.values.inverterParamDet.inverterManufacturer]);
+  }, [formik.values.inverterParamDet.inverterManufacturerID]);
 
   useEffect(() => {
-    if(formik.values.moduleParamDet.solarModuleManufacturer){
+    if(formik.values.moduleParamDet.solarModuleManufacturerID){
     fetchSolarByID();
     }
-  }, [formik.values.moduleParamDet.solarModuleManufacturer]);
+  }, [formik.values.moduleParamDet.solarModuleManufacturerID]);
 
 
 
@@ -328,7 +328,7 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
     console.log('value', value);
     const inputRegex = /^-?[0-9]*(\.[0-9]*)?$/;
 
-    if (id === 'moduleParamDet.solarModuleManufacturer' || id === 'inverterParamDet.inverterManufacturer' || id === 'projectName') {
+    if (id === 'moduleParamDet.solarModuleManufacturerID' || id === 'inverterParamDet.inverterManufacturerID' || id === 'projectName') {
       formik.setFieldValue(id, value);
     } else if (id === 'inverterParamDet.numberOfInverters') {
       formik.setFieldValue(id, value);
@@ -421,7 +421,7 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
 
     return rows;
   };
-  console.log(formik);
+  console.log(formik.values);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -599,15 +599,15 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
                 fullWidth
                 variant="outlined"
                 error={
-                  formik.touched.moduleParamDet?.solarModuleManufacturer && Boolean(formik.errors.moduleParamDet?.solarModuleManufacturer)
+                  formik.touched.moduleParamDet?.solarModuleManufacturerID && Boolean(formik.errors.moduleParamDet?.solarModuleManufacturerID)
                 }
               >
                 <InputLabel id="solar-manufacturer-label">Solar Module Manufacturer</InputLabel>
                 <Select
                   labelId="solar-manufacturer-label"
-                  id="moduleParamDet.solarModuleManufacturer"
-                  name="moduleParamDet.solarModuleManufacturer"
-                  value={formik.values.moduleParamDet.solarModuleManufacturer}
+                  id="moduleParamDet.solarModuleManufacturerID"
+                  name="moduleParamDet.solarModuleManufacturerID"
+                  value={formik.values.moduleParamDet.solarModuleManufacturerID}
                   onChange={(event) => {
                     formik.handleChange(event);
                   }}
@@ -620,8 +620,8 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
                     </MenuItem>
                   ))}
                 </Select>
-                {formik.touched.moduleParamDet?.solarModuleManufacturer && formik.errors.moduleParamDet?.solarModuleManufacturer && (
-                  <div>{formik.errors.moduleParamDet?.solarModuleManufacturer}</div>
+                {formik.touched.moduleParamDet?.solarModuleManufacturerID && formik.errors.moduleParamDet?.solarModuleManufacturerID && (
+                  <div>{formik.errors.moduleParamDet?.solarModuleManufacturerID}</div>
                 )}
               </FormControl>
             </Box>
@@ -630,29 +630,29 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
                 fullWidth
                 variant="outlined"
                 error={
-                  formik.touched.moduleParamDet?.solarModuleName && Boolean(formik.errors.moduleParamDet?.solarModuleName)
+                  formik.touched.moduleParamDet?.solarModuleNameID && Boolean(formik.errors.moduleParamDet?.solarModuleNameID)
                 }
               >
                 <InputLabel id="inverter-manufacturer-label">Solar Module Manufacturer</InputLabel>
                 <Select
                   labelId="solar-manufacturer-label"
-                  id="moduleParamDet.solarModuleName"
-                  name="moduleParamDet.solarModuleName"
-                  value={formik.values.moduleParamDet.solarModuleName}
+                  id="moduleParamDet.solarModuleNameID"
+                  name="moduleParamDet.solarModuleNameID"
+                  value={formik.values.moduleParamDet.solarModuleNameID}
                   onChange={(event) => {
                     formik.handleChange(event);
                   }}
                   onBlur={formik.handleBlur}
                   fullWidth
                 >
-                  {solarModuleName.map((manufacturer) => (
+                  {solarModuleNameID.map((manufacturer) => (
                     <MenuItem key={manufacturer.pvModuleID} value={manufacturer.pvModuleID}>
                       {manufacturer.model}
                     </MenuItem>
                   ))}
                 </Select>
-                {formik.touched.inverterParamDet?.inverterManufacturer && formik.errors.inverterParamDet?.inverterManufacturer && (
-                  <div>{formik.errors.inverterParamDet?.inverterManufacturer}</div>
+                {formik.touched.inverterParamDet?.inverterManufacturerID && formik.errors.inverterParamDet?.inverterManufacturerID && (
+                  <div>{formik.errors.inverterParamDet?.inverterManufacturerID}</div>
                 )}
               </FormControl>
             </Box>
@@ -781,15 +781,15 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
                 fullWidth
                 variant="outlined"
                 error={
-                  formik.touched.inverterParamDet?.inverterManufacturer && Boolean(formik.errors.inverterParamDet?.inverterManufacturer)
+                  formik.touched.inverterParamDet?.inverterManufacturerID && Boolean(formik.errors.inverterParamDet?.inverterManufacturerID)
                 }
               >
                 <InputLabel id="inverter-manufacturer-label">Inverter Manufacturer</InputLabel>
                 <Select
                   labelId="inverter-manufacturer-label"
-                  id="inverterParamDet.inverterManufacturer"
-                  name="inverterParamDet.inverterManufacturer"
-                  value={formik.values.inverterParamDet.inverterManufacturer}
+                  id="inverterParamDet.inverterManufacturerID"
+                  name="inverterParamDet.inverterManufacturerID"
+                  value={formik.values.inverterParamDet.inverterManufacturerID}
                   onChange={(event) => {
                     formik.handleChange(event);
                   }}
@@ -802,8 +802,8 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
                     </MenuItem>
                   ))}
                 </Select>
-                {formik.touched.inverterParamDet?.inverterManufacturer && formik.errors.inverterParamDet?.inverterManufacturer && (
-                  <div>{formik.errors.inverterParamDet?.inverterManufacturer}</div>
+                {formik.touched.inverterParamDet?.inverterManufacturerID && formik.errors.inverterParamDet?.inverterManufacturerID && (
+                  <div>{formik.errors.inverterParamDet?.inverterManufacturerID}</div>
                 )}
               </FormControl>
             </Box>
@@ -812,27 +812,27 @@ const ModuleParametersTable = ({ NextStep, onFormikChange, projectID, setProject
                 fullWidth
                 variant="outlined"
                 error={
-                  formik.touched.inverterParamDet?.inverterManufacturer && Boolean(formik.errors.inverterParamDet?.inverterManufacturer)
+                  formik.touched.inverterParamDet?.inverterManufacturerID && Boolean(formik.errors.inverterParamDet?.inverterManufacturerID)
                 }
               >
                 <InputLabel id="inverter-manufacturer-label">Inverter Name</InputLabel>
                 <Select
                   labelId="inverter-manufacturer-label"
-                  id="inverterParamDet.inverterName"
-                  name="inverterParamDet.inverterName"
-                  value={formik.values.inverterParamDet.inverterName}
+                  id="inverterParamDet.inverterID"
+                  name="inverterParamDet.inverterID"
+                  value={formik.values.inverterParamDet.inverterID}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   fullWidth
                 >
-                  {inverterName.map((manufacturer) => (
+                  {inverterID.map((manufacturer) => (
                     <MenuItem key={manufacturer.pvInverterID} value={manufacturer.pvInverterID}>
                       {manufacturer.model}
                     </MenuItem>
                   ))}
                 </Select>
-                {formik.touched.inverterParamDet?.inverterName && formik.errors.inverterParamDet?.inverterName && (
-                  <div>{formik.errors.inverterParamDet?.inverterName}</div>
+                {formik.touched.inverterParamDet?.inverterID && formik.errors.inverterParamDet?.inverterID && (
+                  <div>{formik.errors.inverterParamDet?.inverterID}</div>
                 )}
               </FormControl>
             </Box>
